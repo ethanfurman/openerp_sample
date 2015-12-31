@@ -1,0 +1,61 @@
+!!!xml1.0
+
+-act_window = 'ir.actions.act_window'
+-view = 'ir.ui.view'
+
+%openerp
+    %data noupdate='0'
+
+        %record model=view #sample_request_form
+            @name: sample.request.form
+            @model: sample.request
+            @arch type='xml'
+                %form $Sample_Request version='7.0'
+                    @id invisible='1'
+                    %group col='5'
+                        %group colspan='2'
+                            @department widget='radio'
+                            @user_id
+                            @create_date readonly='1' $Created_on attrs="{'invisible': [('id','=',False)]}"
+                            %label for='target_date_type' string='Samples Must'
+                            %div colspan='1'
+                                @target_date_type .oe_inline
+                                by
+                                @target_date .oe_inline
+                            @send_to widget='radio'
+                            @partner_id on_change='onchange_partner_id(partner_id, context)'
+                        %group colspan='3'
+                            @request_ship
+                            @address_type widget='radio' options="{'horizontal':1}"
+                            @address widget='text'
+                            @ice
+                            @third_party_account
+                    %label for='instructions'
+                    @instructions
+                    %label for='product_ids'
+                    @product_ids nolabel='1'
+
+        %record model=view #sample_request_list
+            @name: sample.request.list
+            @model: sample.request
+            @arch type='xml'
+                %tree $Sample_Request
+                    @create_date
+                    @partner_id
+                    @user_id
+
+        %record model=act_window #sample_request_action
+            @name: Sample Request
+            @res_model: sample.request
+            @view_type: form
+            @view_mode: tree,form
+
+        %menuitem @Samples #menu_sample parent='base.menu_sales' action='sample_request_action'
+
+        %record model=view #sample_product_list
+            @name: sample.product.list
+            @model: sample.product
+            @arch type='xml'
+                %tree $Products editable='bottom'
+                    @qty colspan='1'
+                    @product_id colspan='3' options="{'create':false, 'create_edit':false, 'limit':15}"
