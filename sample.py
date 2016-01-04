@@ -102,15 +102,21 @@ class sample_request(osv.Model):
         return res
 
 
+class sample_qty_label(osv.Model):
+    _name = 'sample.qty_label'
+    _order = 'common desc, name asc'
+
+    _columns = {
+        'name': fields.char('Qty Label', size=16, required=True),
+        'common': fields.boolean('Commonly Used Size'),
+        }
+
+
 class sample_product(osv.Model):
     _name = 'sample.product'
 
     _columns = {
         'request_id': fields.many2one('sample.request', string='Request'),
-        'product_id': fields.many2one(
-            'product.product',
-            string='Item',
-            domain=[('categ_id','child_of','Saleable')],
-            ),
-        'qty': fields.char('Qty', size=24, help='Most common are "2 oz" and "4 oz".'),
+        'qty': fields.many2one('sample.qty_label', string='Qty'),
+        'product_id': fields.many2one('product.product', string='Item', domain=[('categ_id','child_of','Saleable')]),
         }

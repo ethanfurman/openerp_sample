@@ -15,6 +15,7 @@
         ],
     'update_xml': [
         'sample_view.xaml',
+        'sample_data.xaml',
         'security/ir.model.access.csv',
         ],                    # xml modules with data and/or views
     'installable': True,

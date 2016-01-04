@@ -23,7 +23,7 @@
                                 by
                                 @target_date .oe_inline
                             @send_to widget='radio'
-                            @partner_id on_change='onchange_partner_id(partner_id, context)'
+                            @partner_id on_change='onchange_partner_id(partner_id, context)' options="{'limit':15}" domain="[('customer','=',1)]"
                         %group colspan='3'
                             @request_ship
                             @address_type widget='radio' options="{'horizontal':1}"
@@ -57,5 +57,5 @@
             @model: sample.product
             @arch type='xml'
                 %tree $Products editable='bottom'
-                    @qty colspan='1'
-                    @product_id colspan='3' options="{'create':false, 'create_edit':false, 'limit':15}"
+                    @qty options="{'create':true, 'create_edit':false, 'limit':15, 'no_open':True}"
+                    @product_id options="{'create':false, 'create_edit':false, 'limit':15}"
