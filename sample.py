@@ -89,8 +89,19 @@ class sample_request(osv.Model):
     _defaults = {
         'user_id': lambda obj, cr, uid, ctx: uid,
         'address_type': 'business',
-
         }
+
+    def name_get(self, cr, uid, ids, context=None):
+        if isinstance(ids, (int, long)):
+            ids = [ids]
+        res = []
+        for record in self.browse(cr, uid, ids, context=context):
+            name = record.partner_id.name
+            if record.partner_id.parent_id:
+                name = name + ' (%s)' % record.partner_id.parent_id.name
+            due_date = record.target_date
+            res.append((record.id, name + ': ' + due_date))
+        return res
 
     def onchange_partner_id(self, cr, uid, ids, partner_id, context=None):
         res = {}
