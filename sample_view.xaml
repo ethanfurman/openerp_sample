@@ -11,6 +11,8 @@
             @model: sample.request
             @arch type='xml'
                 %form $Sample_Request version='7.0'
+                    %header
+                        @state widget='statusbar'
                     @id invisible='1'
                     %group col='5'
                         %group colspan='2'
@@ -30,10 +32,29 @@
                             @address widget='text'
                             @ice
                             @third_party_account
-                    %label for='instructions'
-                    @instructions
                     %label for='product_ids'
                     @product_ids nolabel='1'
+                    %notebook
+                        %page string='General'
+                            %label for='instructions'
+                            @instructions
+                        %page string='Labeling'
+                            %group
+                                %group
+                                    @invoice readwrite="groups('sample.group_sample_user')"
+                                    @julian_date_code readwrite="groups('sample.group_sample_user')"
+                                    @production_order readwrite="groups('sample.group_sample_user')"
+                        %page string='Shipping'
+                            %group
+                                %group
+                                    @actual_ship readwrite="groups('sample.group_sample_user,sample.group_sample_shipping')"
+                                    @actual_ship_date readwrite="groups('sample.group_sample_user,sample.group_sample_shipping')"
+                                %group
+                                    @shipping_cost widget='monetary' readwrite="groups('sample.group_sample_user,sample.group_sample_shipping')"
+                                    @tracking readwrite="groups('sample.group_sample_user,sample.group_sample_shipping')"
+                                %group
+                                    @received_by readwrite="groups('sample.group_sample_user,sample.group_sample_shipping')"
+                                    @received_datetime readwrite="groups('sample.group_sample_user,sample.group_sample_shipping')"
 
         %record model=view #sample_request_list
             @name: sample.request.list
@@ -50,12 +71,19 @@
             @view_type: form
             @view_mode: tree,form
 
-        %menuitem @Samples #menu_sample parent='base.menu_sales' action='sample_request_action'
+        %menuitem @Samples #menu_sales_sample parent='base.menu_sales' action='sample_request_action'
 
         %record model=view #sample_product_list
             @name: sample.product.list
             @model: sample.product
             @arch type='xml'
                 %tree $Products editable='bottom'
-                    @qty options="{'create':true, 'create_edit':false, 'limit':15, 'no_open':True}"
-                    @product_id options="{'create':false, 'create_edit':false, 'limit':15}"
+                    @qty options="{'create':true, 'create_edit':false, 'limit':15, 'no_open':True}" readwrite="groups('base.group_sale_salesman,sample.group_sample_user')"
+                    @product_id options="{'create':false, 'create_edit':false, 'limit':15}" readwrite="groups('base.group_sale_salesman,sample.group_sample_user')"
+                    @product_lot readwrite="groups('sample.group_sample_user')"
+
+        %menuitem @Samples groups="sample.group_sample_user,sample.group_sample_shipping" #sample_main
+        %menuitem @Samples sequence='10' parent='sample_main' #sample_sub
+        %menuitem @Samples sequence='10' parent='sample_sub' action='sample_request_action' #menu_sample_sample
+        %menuitem @Customers sequence='20' parent='sample_sub' action='base.action_partner_customer_form' #menu_sample_customer
+        %menuitem @Products sequence='30' parent='sample_sub' action='product.product_normal_action' #menu_sample_product

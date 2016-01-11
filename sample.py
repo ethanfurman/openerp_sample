@@ -13,6 +13,7 @@ import base64
 import time
 from openerp.tools import DEFAULT_SERVER_DATE_FORMAT, DEFAULT_SERVER_DATETIME_FORMAT, ormcache
 
+from fnx import Proposed
 
 _logger = logging.getLogger(__name__)
 
@@ -64,32 +65,61 @@ class sample_request(osv.Model):
         return res
 
     _columns = {
-            'department': fields.selection([('marketing', 'SAMMA - Marketing'), ('sales', 'SAMSA - Sales')], string='Department', required=True),
-            'user_id': fields.many2one('res.users', 'Request by', required=True),
-            'create_date': fields.datetime('Request created on', readonly=True),
-            'send_to': fields.selection([('rep', 'Sales Rep in office'), ('address', 'Customer')], string='Send to', required=True),
-            'target_date_type': fields.selection([('ship', 'Ship'), ('arrive', 'Arrive')], string='Samples must', required=True),
-            'target_date': fields.date('Target Date', required=True),
-            'instructions': fields.text('Special Instructions'),
-            'partner_id': fields.many2one('res.partner', 'Recipient', required=True),
-            # fields needed for shipping
-            'address': fields.function(_get_address, type='text', string='Shipping Label'),
-            'address_type': fields.selection([('business', 'Commercial'), ('personal', 'Residential')], string='Address type', required=True),
-            'ice': fields.boolean('Add ice'),
-            'request_ship': fields.selection(REQUEST_SHIPPING, string='Ship Via'),
-            'actual_ship': fields.selection(COMMON_SHIPPING, string='Actual Shipping Method'),
-            'third_party_account': fields.char('3rd Party Account Number', size=64),
-            # field for samples department only
-            'invoice': fields.char('Invoice #', size=32),
-            'julian_date_code': fields.char('Julian Date Code', size=12),
-            # products to sample
-            'product_ids': fields.one2many('sample.product', 'request_id', string='Items'),
-            }
+        'state': fields.selection(
+            (
+                ('draft', 'Draft'),
+                ('production', 'Production'),   # <- julian_date_code set
+                ('shipping', 'Ready to Ship'),  # <- all product_lot's filled in
+                ('transit', 'In Transit'),      # <- tracking number entered
+                ('complete', 'Received'),       # <- received_datetime entered
+                ),
+            string='Status',
+            ),
+        'department': fields.selection([('marketing', 'SAMMA - Marketing'), ('sales', 'SAMSA - Sales')], string='Department', required=True),
+        'user_id': fields.many2one('res.users', 'Request by', required=True),
+        'create_date': fields.datetime('Request created on', readonly=True),
+        'send_to': fields.selection([('rep', 'Sales Rep in office'), ('address', 'Customer')], string='Send to', required=True),
+        'target_date_type': fields.selection([('ship', 'Ship'), ('arrive', 'Arrive')], string='Samples must', required=True),
+        'target_date': fields.date('Target Date', required=True),
+        'instructions': fields.text('Special Instructions'),
+        'partner_id': fields.many2one('res.partner', 'Recipient', required=True),
+        # fields needed for shipping
+        'address': fields.function(_get_address, type='text', string='Shipping Label'),
+        'address_type': fields.selection([('business', 'Commercial'), ('personal', 'Residential')], string='Address type', required=True),
+        'ice': fields.boolean('Add ice'),
+        'request_ship': fields.selection(REQUEST_SHIPPING, string='Ship Via'),
+        'actual_ship': fields.selection(COMMON_SHIPPING, string='Actual Shipping Method'),
+        'actual_ship_date': fields.date('Shipped on'),
+        'third_party_account': fields.char('3rd Party Account Number', size=64),
+        'tracking': fields.char('Tracking #', size=32),
+        'shipping_cost': fields.float('Shipping Cost'),
+        'received_by': fields.char('Received by', size=32),
+        'received_datetime': fields.datetime('Received when'),
+        # field for samples department only
+        'invoice': fields.char('Invoice #', size=32),
+        'julian_date_code': fields.char('Julian Date Code', size=12),
+        'production_order': fields.char('Production Order #', size=12),
+        # products to sample
+        'product_ids': fields.one2many('sample.product', 'request_id', string='Items'),
+        }
 
     _defaults = {
         'user_id': lambda obj, cr, uid, ctx: uid,
         'address_type': 'business',
+        'state': 'draft',
         }
+
+    # def fields_get(self, cr, user, allfields=None, context=None, write_access=True):
+    #     print 'sample_request.fields_get'
+    #     print '    cr:', cr
+    #     print '  user:', user
+    #     print '  flds:', repr(allfields)
+    #     print '   ctx:', context
+    #     res = super(sample_request, self).fields_get(cr, user, allfields=allfields, context=context, write_access=write_access)
+    #     print '  --------------------------------------------------'
+    #     for key, value in res.items():
+    #         print key, repr(value)
+    #     return res
 
     def name_get(self, cr, uid, ids, context=None):
         if isinstance(ids, (int, long)):
@@ -112,6 +142,37 @@ class sample_request(osv.Model):
             res['value'] = {'address': label}
         return res
 
+    def write(self, cr, uid, ids, values, context=None):
+        if ids:
+            if isinstance(ids, (int, long)):
+                ids = [ids]
+            user = self.pool.get('res.users').browse(cr, uid, uid, context=context)
+            for record in self.browse(cr, SUPERUSER_ID, ids, context=context):
+                vals = values.copy()
+                proposed = Proposed(self, cr, values, record)
+                state = 'draft'
+                old_state = record.state
+                if proposed.julian_date_code:
+                    state = 'production'
+                if proposed.product_ids:
+                    for sample_product in proposed.product_ids:
+                        if not sample_product.product_lot:
+                            break
+                    else:
+                        state = 'shipping'
+                if proposed.tracking:
+                    state = 'transit'
+                if proposed.received_datetime:
+                    state = 'complete'
+                if proposed.state != state:
+                    vals['state'] = state
+                if 'product_ids' in vals and old_state == 'production':
+                    if not user.has_group('sample.group_sample_user'):
+                        raise ERPError('Error', 'Order is already in Production.  Talk to someone in Samples to get more productios added.')
+                super(sample_request, self).write(cr, uid, [record.id], vals, context=context)
+            return True
+        return super(sample_request, self).write(cr, uid, ids, values, context=context)
+
 
 class sample_qty_label(osv.Model):
     _name = 'sample.qty_label'
@@ -130,4 +191,5 @@ class sample_product(osv.Model):
         'request_id': fields.many2one('sample.request', string='Request'),
         'qty': fields.many2one('sample.qty_label', string='Qty'),
         'product_id': fields.many2one('product.product', string='Item', domain=[('categ_id','child_of','Saleable')]),
+        'product_lot': fields.char('Lot #', size=12),
         }
