@@ -10,14 +10,17 @@
     'author': 'Van Sebille Systems',
     'depends': [
         'base',
+        'crm',
+        'fnx',
         'product',
         'web',
         ],
     'update_xml': [
+        'security/sample_security.xaml',
+        'security/ir.model.access.csv',
         'sample_view.xaml',
         'sample_data.xaml',
-        'security/ir.model.access.csv',
-        ],                    # xml modules with data and/or views
+        ],
     'installable': True,
     'application': True,
     'auto_install': False,
