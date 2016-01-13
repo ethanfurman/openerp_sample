@@ -99,6 +99,7 @@ class sample_request(osv.Model):
         'invoice': fields.char('Invoice #', size=32),
         'julian_date_code': fields.char('Julian Date Code', size=12),
         'production_order': fields.char('Production Order #', size=12),
+        'finish_date': fields.date('Sample Packaged Date'),
         # products to sample
         'product_ids': fields.one2many('sample.product', 'request_id', string='Items'),
         }
@@ -109,18 +110,6 @@ class sample_request(osv.Model):
         'state': 'draft',
         }
 
-    # def fields_get(self, cr, user, allfields=None, context=None, write_access=True):
-    #     print 'sample_request.fields_get'
-    #     print '    cr:', cr
-    #     print '  user:', user
-    #     print '  flds:', repr(allfields)
-    #     print '   ctx:', context
-    #     res = super(sample_request, self).fields_get(cr, user, allfields=allfields, context=context, write_access=write_access)
-    #     print '  --------------------------------------------------'
-    #     for key, value in res.items():
-    #         print key, repr(value)
-    #     return res
-
     def name_get(self, cr, uid, ids, context=None):
         if isinstance(ids, (int, long)):
             ids = [ids]
@@ -129,8 +118,10 @@ class sample_request(osv.Model):
             name = record.partner_id.name
             if record.partner_id.parent_id:
                 name = name + ' (%s)' % record.partner_id.parent_id.name
-            due_date = record.target_date
-            res.append((record.id, name + ': ' + due_date))
+            invoice = record.invoice or ''
+            if invoice:
+                invoice += ': '
+            res.append((record.id, invoice + name))
         return res
 
     def onchange_partner_id(self, cr, uid, ids, partner_id, context=None):
@@ -160,6 +151,8 @@ class sample_request(osv.Model):
                             break
                     else:
                         state = 'shipping'
+                if proposed.finish_date:
+                    state = 'shipping'
                 if proposed.tracking:
                     state = 'transit'
                 if proposed.received_datetime:
@@ -192,4 +185,7 @@ class sample_product(osv.Model):
         'qty': fields.many2one('sample.qty_label', string='Qty'),
         'product_id': fields.many2one('product.product', string='Item', domain=[('categ_id','child_of','Saleable')]),
         'product_lot': fields.char('Lot #', size=12),
+        'product_cost': fields.float('Product Cost'),
+        'product_time': fields.float('Preparation Time'),
         }
+

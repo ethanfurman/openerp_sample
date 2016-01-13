@@ -14,11 +14,21 @@
         %record model='res.groups' #group_sample_shipping
             @name: Shipping
             @category_id ref='module_sample'
-            @comment: User can update shipping data
+            @comment: User can update sample shipping data
+
+        %record model='res.groups' #group_sample_picking
+            @name: Picking
+            @category_id ref='module_sample'
+            @comment: User can update sample lot data and finish date
+
+        %record model='res.groups' #group_sample_costing
+            @name: Costing
+            @category_id ref='module_sample'
+            @comment: User can view costing data
 
         %record model='res.groups' #group_sample_manager
             @name: Manager
             @category_id ref='module_sample'
             @comment: User has full access
-            @implied_ids eval="[(6, 0, [ref('group_sample_user'), ref('group_sample_shipping')])]"
+            @implied_ids eval="[(6, 0, [ref('group_sample_user'), ref('group_sample_shipping'), ref('group_sample_costing')])]"
             @users eval="[(4, ref('base.user_root'))]"
