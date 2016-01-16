@@ -2,13 +2,13 @@
 
 -sample_qty = 'sample.qty_label'
 
-%openerp
-    %data noupdate='1'
+~openerp
+    ~data noupdate='1'
 
-        %record model=sample_qty #two_oz
+        ~record model=sample_qty #two_oz
             @name: 2 oz
             @common eval='True'
 
-        %record model=sample_qty #four_oz
+        ~record model=sample_qty #four_oz
             @name: 4 oz
             @common eval='True'
