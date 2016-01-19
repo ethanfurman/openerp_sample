@@ -6,6 +6,11 @@
             @name: Sample
             @description: Create and track samples
 
+        ~record model='res.groups' #group_sample_guest
+            @name: Guest
+            @category_id ref='module_sample'
+            @comment: User can view Sample Department data
+
         ~record model='res.groups' #group_sample_user
             @name: User
             @category_id ref='module_sample'

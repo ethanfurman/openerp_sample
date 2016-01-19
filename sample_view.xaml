@@ -86,7 +86,7 @@
                     @product_time readwrite="groups('sample.group_sample_user')" sum='Total Time' widget='float_time'
                     @product_cost sum='Total Cost' widget='monetary' groups='sample.group_sample_costing'
 
-        ~menuitem @Samples groups="sample.group_sample_user,sample.group_sample_shipping" #sample_main
+        ~menuitem @Samples groups="sample.group_sample_user,sample.group_sample_shipping,sample.group_sample_guest" #sample_main
         ~menuitem @Samples sequence='10' parent='sample_main' #sample_sub
         ~menuitem @Samples sequence='10' parent='sample_sub' action='sample_request_action' #menu_sample_sample
         ~menuitem @Customers sequence='20' parent='sample_sub' action='base.action_partner_customer_form' #menu_sample_customer
