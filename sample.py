@@ -49,6 +49,17 @@ REQUEST_SHIPPING = (
 # custom tables
 class sample_request(osv.Model):
     _name = 'sample.request'
+    _inherit = ['mail.thread']
+
+    _track = {
+        'state' : {
+            'sample.mt_sample_request_new': lambda s, c, u, r, ctx: r['state'] == 'draft',
+            'sample.mt_sample_request_production': lambda s, c, u, r, ctx: r['state'] == 'production',
+            'sample.mt_sample_request_ready': lambda s, c, u, r, ctx: r['state'] == 'shipping',
+            'sample.mt_sample_request_transiting': lambda s, c, u, r, ctx: r['state'] == 'transit',
+            'sample.mt_sample_request_received': lambda s, c, u, r, ctx: r['state'] == 'complete',
+            }
+        }
 
     def _get_address(self, cr, uid, ids, field_name, arg, context=None):
         res = {}
@@ -75,33 +86,33 @@ class sample_request(osv.Model):
                 ),
             string='Status',
             ),
-        'department': fields.selection([('marketing', 'SAMMA - Marketing'), ('sales', 'SAMSA - Sales')], string='Department', required=True),
-        'user_id': fields.many2one('res.users', 'Request by', required=True),
-        'create_date': fields.datetime('Request created on', readonly=True),
-        'send_to': fields.selection([('rep', 'Sales Rep in office'), ('address', 'Customer')], string='Send to', required=True),
-        'target_date_type': fields.selection([('ship', 'Ship'), ('arrive', 'Arrive')], string='Samples must', required=True),
-        'target_date': fields.date('Target Date', required=True),
-        'instructions': fields.text('Special Instructions'),
-        'partner_id': fields.many2one('res.partner', 'Recipient', required=True),
+        'department': fields.selection([('marketing', 'SAMMA - Marketing'), ('sales', 'SAMSA - Sales')], string='Department', required=True, track_visibility='onchange'),
+        'user_id': fields.many2one('res.users', 'Request by', required=True, track_visibility='onchange'),
+        'create_date': fields.datetime('Request created on', readonly=True, track_visibility='onchange'),
+        'send_to': fields.selection([('rep', 'Sales Rep in office'), ('address', 'Customer')], string='Send to', required=True, track_visibility='onchange'),
+        'target_date_type': fields.selection([('ship', 'Ship'), ('arrive', 'Arrive')], string='Samples must', required=True, track_visibility='onchange'),
+        'target_date': fields.date('Target Date', required=True, track_visibility='onchange'),
+        'instructions': fields.text('Special Instructions', track_visibility='onchange'),
+        'partner_id': fields.many2one('res.partner', 'Recipient', required=True, track_visibility='onchange'),
         # fields needed for shipping
-        'address': fields.function(_get_address, type='text', string='Shipping Label'),
-        'address_type': fields.selection([('business', 'Commercial'), ('personal', 'Residential')], string='Address type', required=True),
-        'ice': fields.boolean('Add ice'),
-        'request_ship': fields.selection(REQUEST_SHIPPING, string='Ship Via'),
-        'actual_ship': fields.selection(COMMON_SHIPPING, string='Actual Shipping Method'),
-        'actual_ship_date': fields.date('Shipped on'),
-        'third_party_account': fields.char('3rd Party Account Number', size=64),
-        'tracking': fields.char('Tracking #', size=32),
-        'shipping_cost': fields.float('Shipping Cost'),
-        'received_by': fields.char('Received by', size=32),
-        'received_datetime': fields.datetime('Received when'),
+        'address': fields.function(_get_address, type='text', string='Shipping Label', track_visibility='onchange'),
+        'address_type': fields.selection([('business', 'Commercial'), ('personal', 'Residential')], string='Address type', required=True, track_visibility='onchange'),
+        'ice': fields.boolean('Add ice', track_visibility='onchange'),
+        'request_ship': fields.selection(REQUEST_SHIPPING, string='Ship Via', required=True, track_visibility='onchange'),
+        'actual_ship': fields.selection(COMMON_SHIPPING, string='Actual Shipping Method', track_visibility='onchange'),
+        'actual_ship_date': fields.date('Shipped on', track_visibility='onchange'),
+        'third_party_account': fields.char('3rd Party Account Number', size=64, track_visibility='onchange'),
+        'tracking': fields.char('Tracking #', size=32, track_visibility='onchange'),
+        'shipping_cost': fields.float('Shipping Cost', track_visibility='onchange'),
+        'received_by': fields.char('Received by', size=32, track_visibility='onchange'),
+        'received_datetime': fields.datetime('Received when', track_visibility='onchange'),
         # field for samples department only
-        'invoice': fields.char('Invoice #', size=32),
-        'julian_date_code': fields.char('Julian Date Code', size=12),
-        'production_order': fields.char('Production Order #', size=12),
-        'finish_date': fields.date('Sample Packaged Date'),
+        'invoice': fields.char('Invoice #', size=32, track_visibility='onchange'),
+        'julian_date_code': fields.char('Julian Date Code', size=12, track_visibility='onchange'),
+        'production_order': fields.char('Production Order #', size=12, track_visibility='onchange'),
+        'finish_date': fields.date('Sample Packaged Date', track_visibility='onchange'),
         # products to sample
-        'product_ids': fields.one2many('sample.product', 'request_id', string='Items'),
+        'product_ids': fields.one2many('sample.product', 'request_id', string='Items', track_visibility='onchange'),
         }
 
     _defaults = {
