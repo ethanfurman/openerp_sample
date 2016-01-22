@@ -43,20 +43,23 @@
                         ~page string='Labeling'
                             ~group
                                 ~group
-                                    @invoice readwrite="groups('sample.group_sample_user')"
-                                    @julian_date_code readwrite="groups('sample.group_sample_user')"
-                                    @production_order readwrite="groups('sample.group_sample_user')"
+                                    @invoice writeonly="groups('sample.group_sample_user')"
+                                    @julian_date_code writeonly="groups('sample.group_sample_user')"
+                                    @production_order writeonly="groups('sample.group_sample_user')"
                         ~page string='Shipping'
                             ~group
                                 ~group
-                                    @actual_ship readwrite="groups('sample.group_sample_user,sample.group_sample_shipping')"
-                                    @actual_ship_date readwrite="groups('sample.group_sample_user,sample.group_sample_shipping')"
+                                    @actual_ship writeonly="groups('sample.group_sample_user,sample.group_sample_shipping')"
+                                    @actual_ship_date writeonly="groups('sample.group_sample_user,sample.group_sample_shipping')"
                                 ~group
-                                    @shipping_cost widget='monetary' readwrite="groups('sample.group_sample_user,sample.group_sample_shipping')"
-                                    @tracking readwrite="groups('sample.group_sample_user,sample.group_sample_shipping')"
+                                    @shipping_cost widget='monetary' writeonly="groups('sample.group_sample_user,sample.group_sample_shipping')"
+                                    @tracking writeonly="groups('sample.group_sample_user,sample.group_sample_shipping')"
                                 ~group
-                                    @received_by readwrite="groups('sample.group_sample_user,sample.group_sample_shipping')"
-                                    @received_datetime readwrite="groups('sample.group_sample_user,sample.group_sample_shipping')"
+                                    @received_by writeonly="groups('sample.group_sample_user,sample.group_sample_shipping')"
+                                    @received_datetime writeonly="groups('sample.group_sample_user,sample.group_sample_shipping')"
+                    ~div .oe_chatter
+                        @message_follower_ids widget='mail_followers'
+                        @message_ids widget='mail_thread' nolabel='1'
 
         ~record model=view #sample_request_list
             @name: sample.request.list
@@ -66,6 +69,7 @@
                     @create_date
                     @partner_id
                     @user_id
+                    @state
 
         ~record model=act_window #sample_request_action
             @name: Sample Request
@@ -80,10 +84,10 @@
             @model: sample.product
             @arch type='xml'
                 ~tree $Products editable='bottom'
-                    @qty options="{'create':true, 'create_edit':false, 'limit':15, 'no_open':True}" readwrite="groups('base.group_sale_salesman,sample.group_sample_user')"
-                    @product_id options="{'create':false, 'create_edit':false, 'limit':15}" readwrite="groups('base.group_sale_salesman,sample.group_sample_user')"
-                    @product_lot readwrite="groups('sample.group_sample_user,sample.group_sample_picker')"
-                    @product_time readwrite="groups('sample.group_sample_user')" sum='Total Time' widget='float_time'
+                    @qty options="{'create':true, 'create_edit':false, 'limit':15, 'no_open':True}" writeonly="groups('base.group_sale_salesman,sample.group_sample_user')"
+                    @product_id options="{'create':false, 'create_edit':false, 'limit':15}" writeonly="groups('base.group_sale_salesman,sample.group_sample_user')"
+                    @product_lot writeonly="groups('sample.group_sample_user,sample.group_sample_picker')"
+                    @product_time writeonly="groups('sample.group_sample_user')" sum='Total Time' widget='float_time'
                     @product_cost sum='Total Cost' widget='monetary' groups='sample.group_sample_costing'
 
         ~menuitem @Samples groups="sample.group_sample_user,sample.group_sample_shipping,sample.group_sample_guest" #sample_main
