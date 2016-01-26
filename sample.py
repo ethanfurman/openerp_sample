@@ -121,6 +121,13 @@ class sample_request(osv.Model):
         'state': 'draft',
         }
 
+    def create(self, cr, uid, values, context=None):
+        user = self.pool.get('res.users').browse(cr, uid, uid, context=context)
+        follower_ids = [u.id for u in user.company_id.sample_request_followers_ids]
+        if follower_ids:
+            values['message_follower_user_ids'] = follower_ids
+        return super(sample_request, self).create(cr, uid, values, context=context)
+
     def name_get(self, cr, uid, ids, context=None):
         if isinstance(ids, (int, long)):
             ids = [ids]

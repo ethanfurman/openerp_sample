@@ -20,6 +20,7 @@
         'security/ir.model.access.csv',
         'sample_view.xaml',
         'sample_data.xaml',
+        'res_config_view.xaml',
         ],
     'installable': True,
     'application': True,
