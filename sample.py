@@ -3,6 +3,7 @@
 # always
 from openerp.osv import fields, osv
 from openerp.osv.osv import except_osv as ERPError
+from openerp.osv.orm import THREE_DAYS, FORTNIGHT
 import logging
 
 # often useful
@@ -13,7 +14,7 @@ import base64
 import time
 from openerp.tools import DEFAULT_SERVER_DATE_FORMAT, DEFAULT_SERVER_DATETIME_FORMAT, ormcache
 
-from fnx.openerp import Proposed
+from fnx.oe import Proposed
 
 _logger = logging.getLogger(__name__)
 
@@ -120,6 +121,31 @@ class sample_request(osv.Model):
         'address_type': 'business',
         'state': 'draft',
         }
+
+    _permissions = [
+        (('department', 'user_id', 'create_date', 'send_to', 'target_date_type', 'target_date', 'instructions', 'partner_id', 'address_type', 'request_ship', 'ice'),
+            ('sample.group_sample_manager', {'readonly': False}),
+            ('sample.group_sample_user', {'readonly': ['|',('state','in',['transit', 'complete']), ('write_date','>',FORTNIGHT)]}),
+            ('base.group_sale_salesman', {'readonly': ['|',('state','in',['production', 'shipping', 'transit', 'complete']), ('write_date','>',FORTNIGHT)]}),
+            ('default', {'readonly': True}),
+            ),
+        (('invoice', 'julian_date_code', 'production_order', 'finish_date'),
+            ('sample.group_sample_manager', {'readonly': False}),
+            ('sample.group_sample_user', {'readonly': [('write_date','>',FORTNIGHT)]}),
+            ('default', {'readonly': True}),
+            ),
+        (('actual_ship', 'actual_ship_date', 'third_party_account', 'tracking', 'shipping_cost'),
+            ('sample.group_sample_manager', {'readonly': False}),
+            ('sample.group_sample_user', {'readonly': [('write_date','>',FORTNIGHT)]}),
+            ('sample.group_sample_shipping', {'readonly': ['|',('state','in',['complete']), ('write_date','>',THREE_DAYS)]}),
+            ('default', {'readonly': True}),
+            ),
+        (('received_by', 'received_datetime'),
+            ('sample.group_sample_manager', {'readonly': False}),
+            ('sample.group_sample_user', {'readonly': [('write_date','>',THREE_DAYS)]}),
+            ('default', {'readonly': True}),
+            ),
+        ]
 
     def create(self, cr, uid, values, context=None):
         user = self.pool.get('res.users').browse(cr, uid, uid, context=context)
