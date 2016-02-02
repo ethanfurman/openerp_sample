@@ -13,7 +13,7 @@ import base64
 import time
 from openerp.tools import DEFAULT_SERVER_DATE_FORMAT, DEFAULT_SERVER_DATETIME_FORMAT, ormcache
 
-from fnx import Proposed
+from fnx.openerp import Proposed
 
 _logger = logging.getLogger(__name__)
 
