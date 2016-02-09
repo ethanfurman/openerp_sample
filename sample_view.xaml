@@ -16,30 +16,30 @@
                     @id invisible='1'
                     ~group col='5'
                         ~group colspan='2'
-                            @department widget='radio'
-                            @user_id
+                            @department widget='radio' writeonly="groups('base.group_sale_salesman,sample.group_sample_user')"
+                            @user_id writeonly="groups('base.group_sale_salesman,sample.group_sample_user')"
                             @create_date readonly='1' $Created_on attrs="{'invisible': [('id','=',False)]}"
                             ~label for='target_date_type' string='Samples Must'
                             ~div colspan='1'
-                                @target_date_type .oe_inline
+                                @target_date_type .oe_inline writeonly="groups('base.group_sale_salesman,sample.group_sample_user')"
                                 by
-                                @target_date .oe_inline
-                            @send_to widget='radio'
-                            @partner_id on_change='onchange_partner_id(partner_id, context)' options="{'limit':15}" domain="[('customer','=',1)]"
+                                @target_date .oe_inline writeonly="groups('base.group_sale_salesman,sample.group_sample_user')"
+                            @send_to widget='radio' writeonly="groups('base.group_sale_salesman,sample.group_sample_user')"
+                            @partner_id on_change='onchange_partner_id(partner_id, context)' options="{'limit':15}" domain="[('customer','=',1)]" writeonly="groups('base.group_sale_salesman,sample.group_sample_user')"
                         ~group colspan='3'
-                            @request_ship
-                            @address_type widget='radio' options="{'horizontal':1}"
+                            @request_ship writeonly="groups('base.group_sale_salesman,sample.group_sample_user')"
+                            @address_type widget='radio' options="{'horizontal':1}" writeonly="groups('base.group_sale_salesman,sample.group_sample_user')"
                             @address widget='text'
-                            @ice
-                            @third_party_account
+                            @ice writeonly="groups('base.group_sale_salesman,sample.group_sample_user')"
+                            @third_party_account writeonly="groups('base.group_sale_salesman,sample.group_sample_user')"
                     ~label for='product_ids'
                     @product_ids nolabel='1'
                     ~group
-                        @finish_date $Finish_Date
+                        @finish_date $Finish_Date writeonly="groups('base.group_sale_salesman,sample.group_sample_user,sample.group_sample_picking')"
                     ~notebook
                         ~page string='General'
                             ~label for='instructions'
-                            @instructions
+                            @instructions writeonly="groups('base.group_sale_salesman,sample.group_sample_user')"
                         ~page string='Labeling'
                             ~group
                                 ~group
