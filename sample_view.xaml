@@ -35,6 +35,7 @@
                     ~label for='product_ids'
                     @product_ids nolabel='1'
                     ~group
+                        @prep_time writeonly="groups('sample.group_sample_user')" widget='float_time'
                         @finish_date $Finish_Date writeonly="groups('base.group_sale_salesman,sample.group_sample_user,sample.group_sample_picking')"
                     ~notebook
                         ~page string='General'
@@ -87,7 +88,6 @@
                     @qty options="{'create':true, 'create_edit':false, 'limit':15, 'no_open':True}" writeonly="groups('base.group_sale_salesman,sample.group_sample_user')"
                     @product_id options="{'create':false, 'create_edit':false, 'limit':15}" writeonly="groups('base.group_sale_salesman,sample.group_sample_user')"
                     @product_lot writeonly="groups('sample.group_sample_user,sample.group_sample_picker')"
-                    @product_time writeonly="groups('sample.group_sample_user')" sum='Total Time' widget='float_time'
                     @product_cost sum='Total Cost' widget='monetary' groups='sample.group_sample_costing'
 
         ~menuitem @Samples groups="sample.group_sample_user,sample.group_sample_shipping,sample.group_sample_guest" #sample_main

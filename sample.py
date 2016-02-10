@@ -111,6 +111,7 @@ class sample_request(osv.Model):
         'invoice': fields.char('Invoice #', size=32, track_visibility='onchange'),
         'julian_date_code': fields.char('Julian Date Code', size=12, track_visibility='onchange'),
         'production_order': fields.char('Production Order #', size=12, track_visibility='onchange'),
+        'prep_time': fields.float('Preparation Time'),
         'finish_date': fields.date('Sample Packaged Date', track_visibility='onchange'),
         # products to sample
         'product_ids': fields.one2many('sample.product', 'request_id', string='Items', track_visibility='onchange'),
@@ -230,6 +231,5 @@ class sample_product(osv.Model):
         'product_id': fields.many2one('product.product', string='Item', domain=[('categ_id','child_of','Saleable')]),
         'product_lot': fields.char('Lot #', size=12),
         'product_cost': fields.float('Product Cost'),
-        'product_time': fields.float('Preparation Time'),
         }
 
