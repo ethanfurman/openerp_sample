@@ -76,6 +76,16 @@ class sample_request(osv.Model):
                 res[id] = label
         return res
 
+    def _get_pdf(self, cr, uid, ids, field_name, arg, context=None):
+        res = {}
+        if isinstance(ids, (int, long)):
+            ids = [ids]
+        dbname = cr.dbname
+        if ids:
+            for id in ids:
+                res[id] = '<a href="/samplerequest/%s/SampleRequest_%d.pdf">Printer Friendly</a>' % (dbname, id)
+        return res
+
     _columns = {
         'state': fields.selection(
             (
@@ -115,6 +125,8 @@ class sample_request(osv.Model):
         'finish_date': fields.date('Sample Packaged Date', track_visibility='onchange'),
         # products to sample
         'product_ids': fields.one2many('sample.product', 'request_id', string='Items', track_visibility='onchange'),
+        # link to printer-friendly form
+        'printer_friendly': fields.function(_get_pdf, type='html', store=False),
         }
 
     _defaults = {
@@ -227,7 +239,7 @@ class sample_product(osv.Model):
 
     _columns = {
         'request_id': fields.many2one('sample.request', string='Request'),
-        'qty': fields.many2one('sample.qty_label', string='Qty'),
+        'qty_id': fields.many2one('sample.qty_label', string='Qty', oldname='qty'),
         'product_id': fields.many2one('product.product', string='Item', domain=[('categ_id','child_of','Saleable')]),
         'product_lot': fields.char('Lot #', size=12),
         'product_cost': fields.float('Product Cost'),

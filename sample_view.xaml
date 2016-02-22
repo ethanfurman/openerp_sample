@@ -14,6 +14,7 @@
                     ~header
                         @state widget='statusbar'
                     @id invisible='1'
+                    @printer_friendly .oe_right .oe_hide nolabel='1' attrs="{'invisible':[('id','=',False)], 'readonly':True}" colspan='1'
                     ~group col='5'
                         ~group colspan='2'
                             @department widget='radio' writeonly="groups('base.group_sale_salesman,sample.group_sample_user')"
@@ -85,7 +86,7 @@
             @model: sample.product
             @arch type='xml'
                 ~tree $Products editable='bottom'
-                    @qty options="{'create':true, 'create_edit':false, 'limit':15, 'no_open':True}" writeonly="groups('base.group_sale_salesman,sample.group_sample_user')"
+                    @qty_id options="{'create':true, 'create_edit':false, 'limit':15, 'no_open':True}" writeonly="groups('base.group_sale_salesman,sample.group_sample_user')"
                     @product_id options="{'create':false, 'create_edit':false, 'limit':15}" writeonly="groups('base.group_sale_salesman,sample.group_sample_user')"
                     @product_lot writeonly="groups('sample.group_sample_user,sample.group_sample_picker')"
                     @product_cost sum='Total Cost' widget='monetary' groups='sample.group_sample_costing'
