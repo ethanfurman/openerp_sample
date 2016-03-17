@@ -52,7 +52,7 @@ shipping_urls = {
         'fedex':  'https://www.fedex.com/apps/fedextrack/?tracknumbers=%s&cntry_code=us',
         'ups':    'https://wwwapps.ups.com/WebTracking/track/?tracking=%s',
         'ontrac': 'https://www.ontrac.com/trackingres.asp?tracking_number=%s',
-        'dhl':    '%s',
+        'dhl':    'http://webtrack.dhlglobalmail.com/?trackingnumber=%s',
         }
 
 # custom tables
@@ -106,7 +106,6 @@ class sample_request(osv.Model):
             if shipper and tracking_no:
                 shipper = shipper.split('_')[0]
                 res[id] = '<a href="%s" target="_blank">%s</a>' % (shipping_urls[shipper] % tracking_no, tracking_no)
-                # res[id] = shipping_urls[shipper] % tracking_no
         return res
 
     _columns = {
@@ -243,8 +242,6 @@ class sample_request(osv.Model):
                 if 'product_ids' in vals and old_state == 'production':
                     if not user.has_group('sample.group_sample_user'):
                         raise ERPError('Error', 'Order is already in Production.  Talk to someone in Samples to get more productios added.')
-                if 'tracking' in values:
-                    aoeu
                 super(sample_request, self).write(cr, uid, [record.id], vals, context=context)
             return True
         return super(sample_request, self).write(cr, uid, ids, values, context=context)
