@@ -24,6 +24,7 @@ COMMON_SHIPPING = (
         ('fedex_overnight', 'FedEx Overnight (5pm)'),
         ('fedex_2', 'FedEx 2-Day'),
         ('fedex_3', 'FedEx 3-Day'),
+        ('fedex', 'FedEx Select Saver'),
         ('fedex_ground', 'FedEx Ground'),
         ('ups_first', 'UPS First Overnight'),
         ('ups_next', 'UPS Next Overnight (10:30am)'),
@@ -31,10 +32,11 @@ COMMON_SHIPPING = (
         ('ups_2', 'UPS 2-Day'),
         ('ups_3', 'UPS 3-Day'),
         ('ups_ground', 'UPS Ground'),
-        ('ontrack_first', 'ONTRACK First Overnight'),
-        ('ontrack_next', 'ONTRACK Next Overnight (8am)'),
-        ('ontrack_overnight', 'ONTRACK Overnight (5pm)'),
-        ('ontrack_2', 'ONTRACK 2-Day'),
+        ('ontrac_first', 'ONTRAC First Overnight'),
+        ('ontrac_next', 'ONTRAC Next Overnight (8am)'),
+        ('ontrac_overnight', 'ONTRAC Overnight (5pm)'),
+        ('ontrac_2', 'ONTRACK 2-Day'),
+        ('dhl', 'DHL (give to receptionist)'),
         )
 
 REQUEST_SHIPPING = (
@@ -43,9 +45,15 @@ REQUEST_SHIPPING = (
         ('cheap_3', 'Cheapest 3-Day'),
         ('cheap_ground', 'Cheapest Ground'),
         ) + COMMON_SHIPPING + (
-        ('dhl', 'DHL (give to receptionist)'),
         ('international', 'International (give to receptionist)'),
         )
+
+shipping_urls = {
+        'fedex':  'https://www.fedex.com/apps/fedextrack/?tracknumbers=%s&cntry_code=us',
+        'ups':    'https://wwwapps.ups.com/WebTracking/track/?tracking=%s',
+        'ontrac': 'https://www.ontrac.com/trackingres.asp?tracking_number=%s',
+        'dhl':    '%s',
+        }
 
 # custom tables
 class sample_request(osv.Model):
@@ -86,6 +94,21 @@ class sample_request(osv.Model):
                 res[id] = '<a href="/samplerequest/%s/SampleRequest_%d.pdf">Printer Friendly</a>' % (dbname, id)
         return res
 
+    def _get_tracking_url(self, cr, uid, ids, field_name, arg, context=None):
+        res = {}
+        if isinstance(ids, (int, long)):
+            ids = [ids]
+        for row in self.read(cr, uid, ids, fields=['id', 'actual_ship', 'tracking'], context=context):
+            id = row['id']
+            tracking_no = row['tracking']
+            shipper = row['actual_ship']
+            res[id] = False
+            if shipper and tracking_no:
+                shipper = shipper.split('_')[0]
+                res[id] = '<a href="%s" target="_blank">%s</a>' % (shipping_urls[shipper] % tracking_no, tracking_no)
+                # res[id] = shipping_urls[shipper] % tracking_no
+        return res
+
     _columns = {
         'state': fields.selection(
             (
@@ -114,6 +137,7 @@ class sample_request(osv.Model):
         'actual_ship_date': fields.date('Shipped on', track_visibility='onchange'),
         'third_party_account': fields.char('3rd Party Account Number', size=64, track_visibility='onchange'),
         'tracking': fields.char('Tracking #', size=32, track_visibility='onchange'),
+        'tracking_url': fields.function(_get_tracking_url, type='char', size=256, string='Tracking #', store=False),
         'shipping_cost': fields.float('Shipping Cost', track_visibility='onchange'),
         'received_by': fields.char('Received by', size=32, track_visibility='onchange'),
         'received_datetime': fields.datetime('Received when', track_visibility='onchange'),
@@ -219,6 +243,8 @@ class sample_request(osv.Model):
                 if 'product_ids' in vals and old_state == 'production':
                     if not user.has_group('sample.group_sample_user'):
                         raise ERPError('Error', 'Order is already in Production.  Talk to someone in Samples to get more productios added.')
+                if 'tracking' in values:
+                    aoeu
                 super(sample_request, self).write(cr, uid, [record.id], vals, context=context)
             return True
         return super(sample_request, self).write(cr, uid, ids, values, context=context)

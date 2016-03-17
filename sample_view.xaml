@@ -38,7 +38,7 @@
                     @product_ids nolabel='1'
                     ~group
                         @prep_time writeonly="groups('sample.group_sample_user')" widget='float_time'
-                        @finish_date $Finish_Date writeonly="groups('base.group_sale_salesman,sample.group_sample_user,sample.group_sample_picking')"
+                        @finish_date $Finish_Date writeonly="groups('sample.group_sample_user,sample.group_sample_picking')"
                     ~notebook
                         ~page string='General'
                             ~label for='instructions'
@@ -56,7 +56,8 @@
                                     @actual_ship_date writeonly="groups('sample.group_sample_user,sample.group_sample_shipping')"
                                 ~group
                                     @shipping_cost widget='monetary' writeonly="groups('sample.group_sample_user,sample.group_sample_shipping')"
-                                    @tracking writeonly="groups('sample.group_sample_user,sample.group_sample_shipping')"
+                                    @tracking .oe_edit_only writeonly="groups('sample.group_sample_user,sample.group_sample_shipping')"
+                                    @tracking_url .oe_hide widget='url'
                                 ~group
                                     @received_by writeonly="groups('sample.group_sample_user,sample.group_sample_shipping')"
                                     @received_datetime writeonly="groups('sample.group_sample_user,sample.group_sample_shipping')"
