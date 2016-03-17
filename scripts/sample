@@ -1,0 +1,106 @@
+#!/usr/bin/env python
+from __future__ import print_function
+
+from dbf import Date
+from openerplib import get_connection, get_records, AttrDict
+from scription import *
+
+CONFIG = '/etc/openerp/fnx.ini'
+
+try:
+    settings = OrmFile(CONFIG, section='openerp')
+except Exception:
+    print('WARNING: unable to process configfile; all parameters must be specified', verbose=0)
+    HOST = ''
+    USER = ''
+    DB = ''
+    PW = ''
+else:
+    HOST = settings.host
+    USER = settings.user
+    DB = settings.db
+    PW = settings.pw
+
+@Script(
+        host=Spec('host where OpenERP instance is running', OPTION, default=HOST),
+        db=Spec('database to use', OPTION, default=DB),
+        user=Spec('login name to use', OPTION, default=USER),
+        pw=Spec('password for login name', OPTION),
+        )
+def main(host, db, user, pw):
+    if host:
+        module.HOST = host
+    if db:
+        module.DB = db
+    if user:
+        module.USER = user
+    if pw:
+        module.PW = pw
+    for req in ('HOST', 'USER', 'DB', 'PW'):
+        if not module[req]:
+            raise SystemExit('%r required; use --help for more info' % req)
+
+
+@Command(
+        shipper=Spec('the shipping company used to send the package', type=unicode.lower),
+        tracking=Spec('the tracking number assigned to the package', ),
+        date=Spec('date package arrived [YYYY-mm-dd]', OPTION, type=Date.fromymd),
+        by=Spec('package delivered to whom', OPTION, type=unicode.title),
+        )
+def receive(shipper, tracking, date, by):
+    """
+    update the date and received-by fields for sample shipments
+    """
+    if not date and not by:
+        abort('must specify at least one of [ DATE | BY ]')
+    connect_oe()
+    fields = OE.sample_request.fields_view_get()['fields']
+    shippers = set([s.split('_')[0] for s, n in fields['actual_ship']['selection']])
+    print('found shippers:', shippers)
+    if shipper not in shippers:
+        abort('shipper %r not found (possibilities: %s)' % (shipper, ', '.join([s.upper() for s in shippers])))
+    records = get_records(
+            OE.sample_request,
+            domain=[('tracking','=',tracking)],
+            fields=['id', 'actual_ship', 'user_id', 'partner_id', 'julian_date_code', 'invoice', 'production_order'],
+            )
+    if len(records) > 1:
+        template = '{user_id[1]:<20} | {partner_id[1]:<30.30} | {julian_date_code:>7} | {invoice:>8} | {production_order:>11}'
+        print('multiple records found for %r:' % tracking, file=stderr)
+        print('-' * 90, file=stderr)
+        print(template.format(
+            user_id=(0, 'user'),
+            partner_id=(0, 'partner'),
+            julian_date_code='julian',
+            invoice='invoice',
+            production_order='prod order',
+            ), file=stderr)
+        print('-' * 90, file=stderr)
+        for record in records:
+            print(
+                template.format(**record),
+                file=stderr,
+                )
+        print('-' * 90, file=stderr)
+        abort('')
+    for record in records:
+        if not record.actual_ship.startswith(shipper):
+            print('shipper on record (%r) does not match %s' % (record.actual_ship, shipper.upper()), file=stderr)
+        data = {}
+        if date:
+            data['received_datetime'] = str(date)
+        if by:
+            data['received_by'] = by
+        OE.sample_request.write(record.id, data)
+
+
+OE = AttrDict()
+
+def connect_oe():
+    OE.conn = conn = get_connection(hostname=HOST, database=DB, login=USER, password=PW)
+    OE.res_partner = conn.get_model('res.partner')
+    OE.res_users = conn.get_model('res.users')
+    OE.sample_request = conn.get_model('sample.request')
+
+
+Main()
