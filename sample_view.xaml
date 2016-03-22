@@ -28,6 +28,7 @@
                                 @target_date .oe_inline writeonly="groups('base.group_sale_salesman,sample.group_sample_user')"
                             @send_to widget='radio' writeonly="groups('base.group_sale_salesman,sample.group_sample_user')"
                             @partner_id on_change='onchange_partner_id(partner_id, context)' options="{'limit':15}" domain="[('customer','=',1)]" writeonly="groups('base.group_sale_salesman,sample.group_sample_user')"
+                            @contact_id writeonly="groups('base.group_sale_salesman,sample.group_sample_user')"
                         ~group colspan='3'
                             @request_ship writeonly="groups('base.group_sale_salesman,sample.group_sample_user')"
                             @address_type widget='radio' options="{'horizontal':1}" writeonly="groups('base.group_sale_salesman,sample.group_sample_user')"

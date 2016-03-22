@@ -50,9 +50,10 @@ REQUEST_SHIPPING = (
 
 shipping_urls = {
         'fedex':  'https://www.fedex.com/apps/fedextrack/?tracknumbers=%s&cntry_code=us',
-        'ups':    'https://wwwapps.ups.com/WebTracking/track/?tracking=%s',
+        'ups':    'https://wwwapps.ups.com/WebTracking/track?track=yes&trackNums=%s',
         'ontrac': 'https://www.ontrac.com/trackingres.asp?tracking_number=%s',
         'dhl':    'http://webtrack.dhlglobalmail.com/?trackingnumber=%s',
+        'usps':   'https://tools.usps.com/go/TrackConfirmAction_input?origTrackNum=%s',
         }
 
 # custom tables
@@ -126,7 +127,8 @@ class sample_request(osv.Model):
         'target_date_type': fields.selection([('ship', 'Ship'), ('arrive', 'Arrive')], string='Samples must', required=True, track_visibility='onchange'),
         'target_date': fields.date('Target Date', required=True, track_visibility='onchange'),
         'instructions': fields.text('Special Instructions', track_visibility='onchange'),
-        'partner_id': fields.many2one('res.partner', 'Recipient', required=True, track_visibility='onchange'),
+        'partner_id': fields.many2one('res.partner', 'Company', required=True, track_visibility='onchange'),
+        'contact_id': fields.many2one('res.partner', 'Contact', track_visibility='onchange'),
         # fields needed for shipping
         'address': fields.function(_get_address, type='text', string='Shipping Label', track_visibility='onchange'),
         'address_type': fields.selection([('business', 'Commercial'), ('personal', 'Residential')], string='Address type', required=True, track_visibility='onchange'),
