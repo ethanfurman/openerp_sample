@@ -6,3 +6,4 @@ import sample
 import company
 import res_config
 import controllers
+import res_partner

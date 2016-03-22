@@ -21,6 +21,7 @@
         'sample_view.xaml',
         'sample_data.xaml',
         'res_config_view.xaml',
+        'res_partner_view.xaml',
         ],
     'installable': True,
     'application': True,
