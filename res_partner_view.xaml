@@ -13,9 +13,9 @@
                         ~group
                             ~separator $Active_Requests
                             ~button name='%(sample_request_action)d' type='action' $History .oe_right context="{'search_default_partner_id': active_id, 'default_partner_id': active_id}"
-                        @sample_request_ids nolabel='1' domain="[('state','not in',['canceled','complete'])]"
+                        @sample_request_ids nolabel='1'
                             ~tree
                                 @user_id
+                                @contact_name $Contact
                                 @create_date
-                                @received_by
-                                @received_datetime
+                                @state

@@ -10,10 +10,11 @@
             @name: sample.request.form
             @model: sample.request
             @arch type='xml'
-                ~form $Sample_Request version='7.0'
+                ~form $Sample_Request version='7.0' setup='onchange_partner_id(partner_id, contact_id, context)'
                     ~header
                         @state widget='statusbar'
                     @id invisible='1'
+                    @partner_is_company invisible='1'
                     ~span
                         @printer_friendly .oe_right .oe_hide nolabel='1' style='text-align: right !important'
                     ~group col='5'
@@ -27,8 +28,8 @@
                                 by
                                 @target_date .oe_inline writeonly="groups('base.group_sale_salesman,sample.group_sample_user')"
                             @send_to widget='radio' writeonly="groups('base.group_sale_salesman,sample.group_sample_user')"
-                            @partner_id on_change='onchange_partner_id(partner_id, context)' options="{'limit':15}" domain="[('customer','=',1)]" writeonly="groups('base.group_sale_salesman,sample.group_sample_user')"
-                            @contact_id writeonly="groups('base.group_sale_salesman,sample.group_sample_user')"
+                            @contact_id on_change='onchange_contact_id(contact_id, partner_id, context)' writeonly="groups('base.group_sale_salesman,sample.group_sample_user')"
+                            @partner_id on_change='onchange_partner_id(partner_id, contact_id, context)' options="{'limit':15}" domain="[('customer','=',1)]" writeonly="groups('base.group_sale_salesman,sample.group_sample_user')"
                         ~group colspan='3'
                             @request_ship writeonly="groups('base.group_sale_salesman,sample.group_sample_user')"
                             @address_type widget='radio' options="{'horizontal':1}" writeonly="groups('base.group_sale_salesman,sample.group_sample_user')"
@@ -76,11 +77,22 @@
                     @user_id
                     @state
 
+        ~record model=view #sample_search_filter
+            @name: sample.request.search
+            @model: sample.request
+            @arch type='xml'
+                ~search $Search_Sample_Request
+                    @user_id $Sales_Person
+                    @partner_id $Customer
+                    @state $Request_Status
+
         ~record model=act_window #sample_request_action
             @name: Sample Request
             @res_model: sample.request
             @view_type: form
             @view_mode: tree,form
+            @search_view_id ref='sample_search_filter'
+            @context: {'combine_company': False}
 
         ~menuitem @Samples #menu_sales_sample parent='base.menu_sales' action='sample_request_action'
 

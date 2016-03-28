@@ -60,6 +60,7 @@ shipping_urls = {
 class sample_request(osv.Model):
     _name = 'sample.request'
     _inherit = ['mail.thread']
+    _order = 'create_date'
 
     _track = {
         'state' : {
@@ -128,7 +129,9 @@ class sample_request(osv.Model):
         'target_date': fields.date('Target Date', required=True, track_visibility='onchange'),
         'instructions': fields.text('Special Instructions', track_visibility='onchange'),
         'partner_id': fields.many2one('res.partner', 'Company', required=True, track_visibility='onchange'),
+        'partner_is_company': fields.related('partner_id', 'is_company', type='boolean', string='Partner is Company'),
         'contact_id': fields.many2one('res.partner', 'Contact', track_visibility='onchange'),
+        'contact_name': fields.related('contact_id', 'name', type='char', size=64, string='Contact Name'),
         # fields needed for shipping
         'address': fields.function(_get_address, type='text', string='Shipping Label', track_visibility='onchange'),
         'address_type': fields.selection([('business', 'Commercial'), ('personal', 'Residential')], string='Address type', required=True, track_visibility='onchange'),
@@ -198,21 +201,72 @@ class sample_request(osv.Model):
         res = []
         for record in self.browse(cr, uid, ids, context=context):
             name = record.partner_id.name
-            if record.partner_id.parent_id:
-                name = name + ' (%s)' % record.partner_id.parent_id.name
-            invoice = record.invoice or ''
-            if invoice:
-                invoice += ': '
-            res.append((record.id, invoice + name))
+            res.append((record.id, name))
         return res
 
-    def onchange_partner_id(self, cr, uid, ids, partner_id, context=None):
-        res = {}
-        if partner_id:
+    def onchange_contact_id(self, cr, uid, ids, contact_id, partner_id, context=None):
+        print 'contact on_change start'
+        res = {'value': {}, 'domain': {}}
+        if contact_id:
+            res_partner = self.pool.get('res.partner')
+            contact = res_partner.browse(cr, uid, contact_id)
+            if partner_id:
+                res['value']['address'] = contact.name + '\n' + res_partner._display_address(cr, uid, contact)
+            else:
+                if contact.is_company:
+                    # move into the partner_id field
+                    res['value']['partner_id'] = contact_id
+                    res['value']['contact_id'] = False
+                    res['domain']['contact_id'] = [('parent_id','=',contact.id)]
+                elif contact.parent_id:
+                    # set the partner_id field with this parent
+                    res['value']['partner_id'] = contact.parent_id.id
+                    res['domain']['contact_id'] = [('parent_id','=',contact.parent_id.id)]
+                else:
+                    # non-company person; shove value into partner
+                    res['value']['partner_id'] = contact.id
+                    res['value']['contact_id'] = False
+                    res['domain']['contact_id'] = []
+        print 'contact on_change done'
+        return res
+
+    def onchange_partner_id(self, cr, uid, ids, partner_id, contact_id, context=None):
+        print 'partner on_change start'
+        res = {'value': {}, 'domain': {}, 'invisible': {}}
+        if not partner_id:
+            res['value']['contact_id'] = False
+            res['value']['address'] = False
+            res['domain']['contact_id'] = []
+        else:
             res_partner = self.pool.get('res.partner')
             partner = res_partner.browse(cr, uid, partner_id)
-            label = partner.name + '\n' + res_partner._display_address(cr, uid, partner)
-            res['value'] = {'address': label}
+            if contact_id:
+                contact = res_partner.browse(cr, uid, contact_id)
+            # if is_company: set contact domain
+            # elif has parent_id: make this the contact & set contact domain
+            # else: blank contact, clear domain
+            if partner.is_company:
+                # this is a company
+                res['domain']['contact_id'] = [('parent_id','=',partner.id)]
+                if contact_id and contact.parent_id.id != partner.id:
+                    res['value']['contact_id'] = False
+            elif partner.parent_id:
+                # this is a contact at a company
+                res['value']['contact_id'] = partner_id
+                res['value']['partner_id'] = partner.parent_id.id
+                res['domain']['contact_id'] = [('parent_id','=',partner.parent_id.id)]
+            else:
+                # this is a non-company person
+                res['value']['contact_id'] = False
+                res['domain']['contact_id'] = []
+                res['invisible']['contact_id'] = True
+
+            if contact_id:
+                label = contact.name + '\n' + res_partner._display_address(cr, uid, contact)
+            elif partner_id:
+                label = partner.name + '\n' + res_partner._display_address(cr, uid, partner)
+            res['value']['address'] = label
+        print 'partner on_change done'
         return res
 
     def write(self, cr, uid, ids, values, context=None):

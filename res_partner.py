@@ -11,5 +11,9 @@ class res_partner(osv.Model):
     _inherit = 'res.partner'
 
     _columns = {
-        'sample_request_ids': fields.one2many('sample.request', 'partner_id', string='Sample Requests'),
+        'sample_request_ids': fields.one2many(
+            'sample.request', 'partner_id',
+            string='Sample Requests',
+            domain=[('state','!=','complete')],
+            ),
         }
