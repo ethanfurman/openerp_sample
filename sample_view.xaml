@@ -27,9 +27,9 @@
                                 @target_date_type .oe_inline writeonly="groups('base.group_sale_salesman,sample.group_sample_user')"
                                 by
                                 @target_date .oe_inline writeonly="groups('base.group_sale_salesman,sample.group_sample_user')"
-                            @send_to widget='radio' writeonly="groups('base.group_sale_salesman,sample.group_sample_user')"
-                            @contact_id on_change='onchange_contact_id(contact_id, partner_id, context)' writeonly="groups('base.group_sale_salesman,sample.group_sample_user')"
-                            @partner_id on_change='onchange_partner_id(partner_id, contact_id, context)' options="{'limit':15}" domain="[('customer','=',1)]" writeonly="groups('base.group_sale_salesman,sample.group_sample_user')"
+                            @send_to widget='radio' on_change='onchange_send_to(send_to, user_id, contact_id, partner_id, context)' writeonly="groups('base.group_sale_salesman,sample.group_sample_user')"
+                            @contact_id on_change='onchange_contact_id(contact_id, partner_id, send_to, context)' attrs="{'invisible':[('id','!=',False),('partner_id','!=',False),('partner_is_company','=',False)]}" writeonly="groups('base.group_sale_salesman,sample.group_sample_user')"
+                            @partner_id on_change='onchange_partner_id(partner_id, contact_id, send_to, context)' options="{'limit':15}" domain="[('customer','=',1)]" writeonly="groups('base.group_sale_salesman,sample.group_sample_user')"
                         ~group colspan='3'
                             @request_ship writeonly="groups('base.group_sale_salesman,sample.group_sample_user')"
                             @address_type widget='radio' options="{'horizontal':1}" writeonly="groups('base.group_sale_salesman,sample.group_sample_user')"
@@ -85,6 +85,8 @@
                     @user_id $Sales_Person
                     @partner_id $Customer
                     @state $Request_Status
+                    ~separator
+                    ~filter $My_Requests @type_owner domain="[('user_id','=',uid)]" help="The samples I requested"
 
         ~record model=act_window #sample_request_action
             @name: Sample Request
@@ -92,7 +94,7 @@
             @view_type: form
             @view_mode: tree,form
             @search_view_id ref='sample_search_filter'
-            @context: {'combine_company': False}
+            @context: {'combine_company': False, 'search_default_type_owner': 1}
 
         ~menuitem @Samples #menu_sales_sample parent='base.menu_sales' action='sample_request_action'
 

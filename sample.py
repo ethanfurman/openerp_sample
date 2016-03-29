@@ -36,6 +36,7 @@ COMMON_SHIPPING = (
         ('ontrac_next', 'ONTRAC Next Overnight (early AM)'),
         ('ontrac_overnight', 'ONTRAC Overnight (late PM)'),
         ('ontrac_2', 'ONTRACK 2-Day'),
+        ('rep', 'Deliver to Sales Rep'),
         ('dhl', 'DHL (give to receptionist)'),
         )
 
@@ -204,13 +205,12 @@ class sample_request(osv.Model):
             res.append((record.id, name))
         return res
 
-    def onchange_contact_id(self, cr, uid, ids, contact_id, partner_id, context=None):
-        print 'contact on_change start'
+    def onchange_contact_id(self, cr, uid, ids, contact_id, partner_id, send_to, context=None):
         res = {'value': {}, 'domain': {}}
         if contact_id:
             res_partner = self.pool.get('res.partner')
             contact = res_partner.browse(cr, uid, contact_id)
-            if partner_id:
+            if partner_id and send_to != 'rep':
                 res['value']['address'] = contact.name + '\n' + res_partner._display_address(cr, uid, contact)
             else:
                 if contact.is_company:
@@ -227,16 +227,15 @@ class sample_request(osv.Model):
                     res['value']['partner_id'] = contact.id
                     res['value']['contact_id'] = False
                     res['domain']['contact_id'] = []
-        print 'contact on_change done'
         return res
 
-    def onchange_partner_id(self, cr, uid, ids, partner_id, contact_id, context=None):
-        print 'partner on_change start'
-        res = {'value': {}, 'domain': {}, 'invisible': {}}
+    def onchange_partner_id(self, cr, uid, ids, partner_id, contact_id, send_to, context=None):
+        res = {'value': {}, 'domain': {}}
         if not partner_id:
             res['value']['contact_id'] = False
-            res['value']['address'] = False
             res['domain']['contact_id'] = []
+            if send_to != 'rep':
+                res['value']['address'] = False
         else:
             res_partner = self.pool.get('res.partner')
             partner = res_partner.browse(cr, uid, partner_id)
@@ -261,12 +260,31 @@ class sample_request(osv.Model):
                 res['domain']['contact_id'] = []
                 res['invisible']['contact_id'] = True
 
+            if send_to != 'rep':
+                if contact_id:
+                    label = contact.name + '\n' + res_partner._display_address(cr, uid, contact)
+                elif partner_id:
+                    label = partner.name + '\n' + res_partner._display_address(cr, uid, partner)
+                res['value']['address'] = label
+        return res
+
+    def onchange_send_to(self, cr, uid, ids, send_to, user_id, contact_id, partner_id, context=None):
+        res = {'value': {}, 'domain': {}}
+        res_partner = self.pool.get('res.partner')
+        if send_to == 'rep':
+            # stuff the rep's address into the record
+            user = self.pool.get('res.users').browse(cr, uid, user_id, context=context)
+            rep = user.partner_id
+            res['value']['address'] = rep.name + '\n' + res_partner._display_address(cr, uid, rep)
+        elif send_to != 'rep':
+            label = False
             if contact_id:
+                contact = res_partner.browse(cr, uid, contact_id, context=context)
                 label = contact.name + '\n' + res_partner._display_address(cr, uid, contact)
             elif partner_id:
+                partner = res_partner.browse(cr, uid, partner_id, context=context)
                 label = partner.name + '\n' + res_partner._display_address(cr, uid, partner)
             res['value']['address'] = label
-        print 'partner on_change done'
         return res
 
     def write(self, cr, uid, ids, values, context=None):
