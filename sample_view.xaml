@@ -28,7 +28,7 @@
                                 by
                                 @target_date .oe_inline writeonly="groups('base.group_sale_salesman,sample.group_sample_user')"
                             @send_to on_change='onchange_send_to(send_to, user_id, contact_id, partner_id, context)' widget='radio' writeonly="groups('base.group_sale_salesman,sample.group_sample_user')"
-                            @contact_id on_change='onchange_contact_id(send_to, user_id, contact_id, partner_id, context)' attrs="{'invisible':[('id','!=',False),('partner_id','!=',False),('partner_is_company','=',False)]}" writeonly="groups('base.group_sale_salesman,sample.group_sample_user')"
+                            @contact_id on_change='onchange_contact_id(send_to, user_id, contact_id, partner_id, context)' attrs="{'invisible':[('id','!=',False),('partner_id','!=',False),('partner_is_company','=',False)]}" writeonly="groups('base.group_sale_salesman,sample.group_sample_user')" context="{'default_parent_id':partner_id}"
                             @partner_id on_change='onchange_partner_id(send_to, user_id, contact_id, partner_id, context)' options="{'limit':15}" domain="[('customer','=',1)]" writeonly="groups('base.group_sale_salesman,sample.group_sample_user')"
                         ~group colspan='3'
                             @request_ship writeonly="groups('base.group_sale_salesman,sample.group_sample_user')"
