@@ -3,7 +3,6 @@
 # always
 from openerp.osv import fields, osv
 from openerp.osv.osv import except_osv as ERPError
-from openerp.osv.orm import THREE_DAYS, FORTNIGHT
 import logging
 
 # often useful
@@ -72,25 +71,6 @@ class sample_request(osv.Model):
             'sample.mt_sample_request_received': lambda s, c, u, r, ctx: r['state'] == 'complete',
             }
         }
-
-    def _get_address(self, cr, uid, send_to, user_id, contact_id, partner_id, context=None):
-        res_partner = self.pool.get('res.partner')
-        if send_to == 'rep':
-            # stuff the rep's address into the record
-            user = self.pool.get('res.users').browse(cr, uid, user_id, context=context)
-            rep = user.partner_id
-            label = rep.name + '\n' + res_partner._display_address(cr, uid, rep)
-        elif send_to:
-            label = False
-            if contact_id:
-                contact = res_partner.browse(cr, uid, contact_id, context=context)
-                label = contact.name + '\n' + res_partner._display_address(cr, uid, contact)
-            elif partner_id:
-                partner = res_partner.browse(cr, uid, partner_id, context=context)
-                label = partner.name + '\n' + res_partner._display_address(cr, uid, partner)
-        else:
-            label = False
-        return label
 
     def _get_pdf(self, cr, uid, ids, field_name, arg, context=None):
         res = {}
@@ -169,31 +149,6 @@ class sample_request(osv.Model):
         'state': 'draft',
         }
 
-    _permissions = [
-        (('department', 'user_id', 'create_date', 'send_to', 'target_date_type', 'target_date', 'instructions', 'partner_id', 'address_type', 'request_ship', 'ice'),
-            ('sample.group_sample_manager', {'readonly': False}),
-            ('sample.group_sample_user', {'readonly': ['|',('state','in',['transit', 'complete']), ('write_date','>',FORTNIGHT)]}),
-            ('base.group_sale_salesman', {'readonly': ['|',('state','in',['production', 'shipping', 'transit', 'complete']), ('write_date','>',FORTNIGHT)]}),
-            ('default', {'readonly': True}),
-            ),
-        (('invoice', 'julian_date_code', 'production_order', 'finish_date'),
-            ('sample.group_sample_manager', {'readonly': False}),
-            ('sample.group_sample_user', {'readonly': [('write_date','>',FORTNIGHT)]}),
-            ('default', {'readonly': True}),
-            ),
-        (('actual_ship', 'actual_ship_date', 'third_party_account', 'tracking', 'shipping_cost'),
-            ('sample.group_sample_manager', {'readonly': False}),
-            ('sample.group_sample_user', {'readonly': [('write_date','>',FORTNIGHT)]}),
-            ('sample.group_sample_shipping', {'readonly': ['|',('state','in',['complete']), ('write_date','>',THREE_DAYS)]}),
-            ('default', {'readonly': True}),
-            ),
-        (('received_by', 'received_datetime'),
-            ('sample.group_sample_manager', {'readonly': False}),
-            ('sample.group_sample_user', {'readonly': [('write_date','>',THREE_DAYS)]}),
-            ('default', {'readonly': True}),
-            ),
-        ]
-
     def create(self, cr, uid, values, context=None):
         user = self.pool.get('res.users').browse(cr, uid, uid, context=context)
         follower_ids = [u.id for u in user.company_id.sample_request_followers_ids]
@@ -209,6 +164,25 @@ class sample_request(osv.Model):
             name = record.partner_id.name
             res.append((record.id, name))
         return res
+
+    def _get_address(self, cr, uid, send_to, user_id, contact_id, partner_id, context=None):
+        res_partner = self.pool.get('res.partner')
+        if send_to == 'rep':
+            # stuff the rep's address into the record
+            user = self.pool.get('res.users').browse(cr, uid, user_id, context=context)
+            rep = user.partner_id
+            label = rep.name + '\n' + res_partner._display_address(cr, uid, rep)
+        elif send_to:
+            label = False
+            if contact_id:
+                contact = res_partner.browse(cr, uid, contact_id, context=context)
+                label = contact.name + '\n' + res_partner._display_address(cr, uid, contact)
+            elif partner_id:
+                partner = res_partner.browse(cr, uid, partner_id, context=context)
+                label = partner.name + '\n' + res_partner._display_address(cr, uid, partner)
+        else:
+            label = False
+        return label
 
     def onchange_contact_id(self, cr, uid, ids, send_to, user_id, contact_id, partner_id, context=None):
         res = {'value': {}, 'domain': {}}
@@ -233,13 +207,6 @@ class sample_request(osv.Model):
         return res
 
     def onchange_partner_id(self, cr, uid, ids, send_to, user_id, contact_id, partner_id, context=None):
-        print 'sample.onchange_partner_id'
-        for name, value in (
-                ('self', self), ('cr', cr), ('uid', uid), ('ids', ids),
-                ('send_to', send_to), ('user_id', user_id), ('contact_id', contact_id),
-                ('partner_id', partner_id), ('context', context),
-                ):
-            print name, value
         res = {'value': {}, 'domain': {}}
         if not partner_id:
             res['value']['contact_id'] = False
