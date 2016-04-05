@@ -73,6 +73,7 @@
             @arch type='xml'
                 ~tree $Sample_Request
                     @create_date
+                    @contact_id
                     @partner_id
                     @user_id
                     @state
