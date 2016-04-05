@@ -238,7 +238,6 @@ class sample_request(osv.Model):
                 # this is a non-company person
                 res['value']['contact_id'] = False
                 res['domain']['contact_id'] = []
-                res['invisible']['contact_id'] = True
 
         res['value']['address'] = self._get_address(cr, uid, send_to, user_id, contact_id, partner_id, context=context)
         return res
