@@ -72,6 +72,11 @@ class sample_request(osv.Model):
             }
         }
 
+    def __init__(self, pool, cr):
+        'update send_to data'
+        cr.execute("UPDATE sample_request SET send_to='customer' WHERE send_to='address'")
+        return super(sample_request, self).__init__(pool, cr)
+
     def _get_pdf(self, cr, uid, ids, field_name, arg, context=None):
         res = {}
         if isinstance(ids, (int, long)):
