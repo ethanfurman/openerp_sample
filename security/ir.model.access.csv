@@ -14,7 +14,7 @@ access_sample_product_picking,sample.product picking,model_sample_product,group_
 access_sample_product_costing,sample.product costing,model_sample_product,group_sample_costing,1,0,0,0
 access_sample_product_manager,sample.product manager,model_sample_product,group_sample_manager,1,1,1,1
 access_sample_qty_label_all,sample.qty_label all,model_sample_qty_label,,1,0,0,0
-access_sample_qty_label_user,sample.qty_label user,model_sample_qty_label,group_sample_user,1,1,0,0
+access_sample_qty_label_user,sample.qty_label user,model_sample_qty_label,group_sample_user,1,1,1,0
 access_sample_qty_label_sales,sample.qty_label sales,model_sample_qty_label,base.group_sale_salesman,1,1,1,1
 access_sample_qty_label_shipping,sample.qty_label shipping,model_sample_qty_label,group_sample_shipping,1,0,0,0
 access_sample_qty_label_picking,sample.qty_label picking,model_sample_qty_label,group_sample_picking,1,0,0,0
