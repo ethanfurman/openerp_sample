@@ -20,7 +20,7 @@
                     ~group col='5'
                         ~group colspan='2'
                             @department widget='radio' writeonly="groups('base.group_sale_salesman,sample.group_sample_user')"
-                            @user_id writeonly="groups('base.group_sale_salesman,sample.group_sample_user')"
+                            @user_id writeonly="groups('base.group_sale_salesman,sample.group_sample_user')" options="{'limit':15, 'create':0, 'create_edit':0}"
                             @create_date readonly='1' $Created_on attrs="{'invisible': [('id','=',False)]}"
                             ~label for='target_date_type' string='Samples Must'
                             ~div colspan='1'
@@ -28,8 +28,8 @@
                                 by
                                 @target_date .oe_inline writeonly="groups('base.group_sale_salesman,sample.group_sample_user')"
                             @send_to on_change='onchange_send_to(send_to, user_id, contact_id, partner_id, context)' widget='radio' writeonly="groups('base.group_sale_salesman,sample.group_sample_user')"
-                            @contact_id on_change='onchange_contact_id(send_to, user_id, contact_id, partner_id, context)' attrs="{'invisible':[('id','!=',False),('partner_id','!=',False),('partner_is_company','=',False)]}" writeonly="groups('base.group_sale_salesman,sample.group_sample_user')" context="{'default_parent_id':partner_id}"
-                            @partner_id on_change='onchange_partner_id(send_to, user_id, contact_id, partner_id, context)' options="{'limit':15}" domain="['|',('customer','=',1),('user_ids','!=',False)]" writeonly="groups('base.group_sale_salesman,sample.group_sample_user')"
+                            @partner_id on_change='onchange_partner_id(send_to, user_id, contact_id, partner_id, context)' options="{'limit':15, 'create':0, 'create_edit':0}" domain="['|',('customer','=',1),('user_ids','!=',False)]" writeonly="groups('base.group_sale_salesman,sample.group_sample_user')"
+                            @contact_id on_change='onchange_contact_id(send_to, user_id, contact_id, partner_id, context)' options="{'limit':10, 'create':0, 'create_edit':1}" attrs="{'readonly': [('partner_id','=',False)], 'invisible':[('id','!=',False),('partner_id','!=',False),('partner_is_company','=',False)]}" writeonly="groups('base.group_sale_salesman,sample.group_sample_user')" context="{'default_parent_id':partner_id}"
                         ~group colspan='3'
                             @request_ship writeonly="groups('base.group_sale_salesman,sample.group_sample_user')"
                             @address_type widget='radio' options="{'horizontal':1}" writeonly="groups('base.group_sale_salesman,sample.group_sample_user')"
