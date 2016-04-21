@@ -13,7 +13,7 @@ from reportlab.lib.styles import getSampleStyleSheet
 from reportlab.rl_config import defaultPageSize
 from StringIO import StringIO
 from antipathy import Path
-from openerp.addons.fnx import humanize
+from openerp.addons.fnx import Humanize
 
 _logger = logging.getLogger(__name__)
 
@@ -46,7 +46,7 @@ class SampleRequest(http.Controller):
 
 
 def create_pdf(order, context=None):
-    order = humanize(order)
+    order = Humanize(order, context=context)
     sales_left = [
             ['Department', order.department],
             ['Request by', order.user_id.name],
@@ -71,8 +71,7 @@ def create_pdf(order, context=None):
 
     items = [['Qty', 'Item', 'Lot #']]
     for item in order.product_ids:
-        item = humanize(item)
-        items.append([item.qty_id.name, item.product_id.name, item.product_lot])
+        items.append([item.qty_id.name, item.product_id.name_get, item.product_lot])
 
     lines = TableStyle([
         ('LINEBELOW', (0,0), (-1,-1), 0.25, colors.black),
