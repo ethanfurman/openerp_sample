@@ -28,8 +28,6 @@ class SampleRequest(http.Controller):
     def get_file(self, request):
         target_file = Path(request.httprequest.path)
         target_company = target_file.path.filename
-        _logger.info('filename: %s', target_file.filename)
-        _logger.info('sample id: %r', target_file.filename[14:-4])
         target_id = int(target_file.filename[14:-4])
         registry = openerp.modules.registry.RegistryManager.get(target_company)
         with registry.cursor() as cr:
@@ -155,7 +153,7 @@ class SampleRequest(http.Controller):
                 ['Send to', order.send_to],
                 ]
         recip = [
-                ['Recipient', '\n'.join([t for t in (order.contact_name, order.partner_id.name_get) if t])],
+                ['Recipient', '\n'.join([t for t in (order.contact_name, order.partner_id.name) if t])],
                 ]
         return main + recip
 
