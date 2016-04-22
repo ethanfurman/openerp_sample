@@ -242,9 +242,11 @@ class sample_request(osv.Model):
         res['value']['address'] = self._get_address(cr, uid, send_to, user_id, contact_id, partner_id, context=context)
         return res
 
-    def onchange_send_to(self, cr, uid, ids, send_to, user_id, contact_id, partner_id, context=None):
+    def onchange_send_to(self, cr, uid, ids, send_to, user_id, contact_id, partner_id, request_ship, context=None):
         res = {'value': {}, 'domain': {}}
         res['value']['address'] = self._get_address(cr, uid, send_to, user_id, contact_id, partner_id, context=context)
+        if send_to == 'rep' and not request_ship:
+            res['value']['request_ship'] = 'rep'
         return res
 
     def onload(self, cr, uid, ids, send_to, user_id, contact_id, partner_id, context=None):
