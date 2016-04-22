@@ -91,10 +91,10 @@ class sample_request(osv.Model):
     def _get_target_date(self, cr, uid, context=None):
         today = Date.strptime(
                 fields.date.context_today(self, cr, uid, context=context),
-                tools.DEFAULT_SERVER_DATE_FORMAT,
+                DEFAULT_SERVER_DATE_FORMAT,
                 )
         target = today.replace(delta_day=3)
-        return target
+        return target.strftime(DEFAULT_SERVER_DATE_FORMAT)
 
     def _get_tracking_url(self, cr, uid, ids, field_name, arg, context=None):
         res = {}
@@ -132,6 +132,7 @@ class sample_request(osv.Model):
         'partner_is_company': fields.related('partner_id', 'is_company', type='boolean', string='Partner is Company'),
         'contact_id': fields.many2one('res.partner', 'Contact', track_visibility='onchange'),
         'contact_name': fields.related('contact_id', 'name', type='char', size=64, string='Contact Name'),
+        'rep_time': fields.float("Rep's Time"),
         # fields needed for shipping
         'address': fields.text(string='Shipping Label'),
         'address_type': fields.selection([('business', 'Commercial'), ('personal', 'Residential')], string='Address type', required=True, track_visibility='onchange'),
@@ -257,6 +258,8 @@ class sample_request(osv.Model):
         res['value']['address'] = self._get_address(cr, uid, send_to, user_id, contact_id, partner_id, context=context)
         if send_to == 'rep' and not request_ship:
             res['value']['request_ship'] = 'rep'
+        elif request_ship == 'rep':
+            res['value']['request_ship'] = False
         return res
 
     def onload(self, cr, uid, ids, send_to, user_id, contact_id, partner_id, context=None):

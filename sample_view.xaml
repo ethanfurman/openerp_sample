@@ -36,6 +36,8 @@
                             @address widget='text'
                             @ice writeonly="groups('base.group_sale_salesman,sample.group_sample_user')"
                             @third_party_account writeonly="groups('base.group_sale_salesman,sample.group_sample_user')"
+                            ~hr colspan='2'
+                            @rep_time widget='float_time'
                     ~label for='product_ids'
                     @product_ids nolabel='1'
                     ~group
