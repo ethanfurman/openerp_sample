@@ -13,6 +13,7 @@ import base64
 import time
 from openerp.tools import DEFAULT_SERVER_DATE_FORMAT, DEFAULT_SERVER_DATETIME_FORMAT, ormcache
 
+from dbf import Date
 from fnx.oe import Proposed
 
 _logger = logging.getLogger(__name__)
@@ -87,6 +88,14 @@ class sample_request(osv.Model):
                 res[id] = '<a href="/samplerequest/%s/SampleRequest_%d.pdf">Printer Friendly</a>' % (dbname, id)
         return res
 
+    def _get_target_date(self, cr, uid, context=None):
+        today = Date.strptime(
+                fields.date.context_today(self, cr, uid, context=context),
+                tools.DEFAULT_SERVER_DATE_FORMAT,
+                )
+        target = today.replace(delta_day=3)
+        return target
+
     def _get_tracking_url(self, cr, uid, ids, field_name, arg, context=None):
         res = {}
         if isinstance(ids, (int, long)):
@@ -152,6 +161,7 @@ class sample_request(osv.Model):
         'user_id': lambda obj, cr, uid, ctx: uid,
         'address_type': 'business',
         'state': 'draft',
+        'target_date': _get_target_date,
         }
 
     def create(self, cr, uid, values, context=None):
