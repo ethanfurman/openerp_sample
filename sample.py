@@ -314,6 +314,6 @@ class sample_product(osv.Model):
         'qty_id': fields.many2one('sample.qty_label', string='Qty', oldname='qty'),
         'product_id': fields.many2one('product.product', string='Item', domain=[('categ_id','child_of','Saleable')]),
         'product_lot': fields.char('Lot #', size=12),
-        'product_cost': fields.float('Product Cost'),
+        'product_cost': fields.float('Retail Cost'),
         }
 
