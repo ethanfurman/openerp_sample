@@ -91,6 +91,10 @@
                     @state $Request_Status
                     ~separator
                     ~filter $My_Requests @type_owner domain="[('user_id','=',uid)]" help="The samples I requested"
+                    ~separator
+                    ~filter $Draft_Requests @type_draft domain="[('state','=','draft')]"
+                    ~filter $Active_Requests @type_active domain="[('state','not in',['draft','complete'])]"
+                    ~filter $Complete_Requests @type_complete domain="[('state','=','complete')]"
 
         ~record model=act_window #sample_request_action
             @name: Sample Request
@@ -98,7 +102,7 @@
             @view_type: form
             @view_mode: tree,form
             @search_view_id ref='sample_search_filter'
-            @context: {'combine_company': False, 'search_default_type_owner': 1}
+            @context: {'combine_company': False, 'search_default_type_owner': 1, 'search_default_type_draft': 1, 'search_default_type_active': 1}
 
         ~menuitem @Samples #menu_sales_sample parent='base.menu_sales' action='sample_request_action'
 
