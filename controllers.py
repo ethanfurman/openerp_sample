@@ -180,9 +180,9 @@ class SampleRequest(http.Controller):
                 ]
 
     def get_items(self, order):
-        items = [['Qty', 'Item', 'Lot #']]
+        items = [['Qty', 'Item', 'Lot # Used']]
         for item in order.product_ids:
-            items.append([item.qty_id.name, item.product_id.name_get, item.product_lot])
+            items.append([item.qty_id.name, item.product_id.name_get, item.product_lot_used])
         return items
 
     def get_second_section(self, order):
