@@ -61,7 +61,7 @@ shipping_urls = {
 class sample_request(osv.Model):
     _name = 'sample.request'
     _inherit = ['mail.thread']
-    _order = 'create_date'
+    _order = 'state, create_date'
 
     _track = {
         'state' : {
@@ -184,6 +184,18 @@ class sample_request(osv.Model):
             name = record.partner_id.name
             res.append((record.id, name))
         return res
+
+    def _generate_order_by(self, order_spec, query):
+        "correctly orders state field if state is in query"
+        order_by = super(sample_request, self)._generate_order_by(order_spec, query)
+        if order_spec and 'state ' in order_spec:
+            state_column = self._columns['state']
+            state_order = 'CASE '
+            for i, state in enumerate(state_column.selection):
+                state_order += "WHEN %s.state='%s' THEN %i " % (self._table, state[0], i)
+            state_order += 'END '
+            order_by = order_by.replace('"%s"."state" ' % self._table, state_order)
+        return order_by
 
     def _get_address(self, cr, uid, send_to, user_id, contact_id, partner_id, context=None):
         res_partner = self.pool.get('res.partner')
