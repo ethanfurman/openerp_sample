@@ -12,6 +12,7 @@
             @arch type='xml'
                 ~form $Sample_Request version='7.0' setup='onload(send_to, user_id, contact_id, partner_id, context)'
                     ~header
+                        ~button @button_sample_submit $Submit .oe_hide type='object' attrs="{'invisible': [('state','!=', 'draft')]}"
                         @state widget='statusbar'
                     @id invisible='1'
                     @partner_is_company invisible='1'

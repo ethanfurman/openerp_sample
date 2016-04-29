@@ -65,7 +65,7 @@ class sample_request(osv.Model):
 
     _track = {
         'state' : {
-            'sample.mt_sample_request_new': lambda s, c, u, r, ctx: r['state'] == 'draft',
+            'sample.mt_sample_request_new': lambda s, c, u, r, ctx: r['state'] == 'new',
             'sample.mt_sample_request_production': lambda s, c, u, r, ctx: r['state'] == 'production',
             'sample.mt_sample_request_ready': lambda s, c, u, r, ctx: r['state'] == 'shipping',
             'sample.mt_sample_request_transiting': lambda s, c, u, r, ctx: r['state'] == 'transit',
@@ -113,7 +113,8 @@ class sample_request(osv.Model):
     _columns = {
         'state': fields.selection(
             (
-                ('draft', 'Draft'),
+                ('draft', 'Draft'),             # <- brand-spankin' new
+                ('new', 'Submitted'),           # <- sales person clicked on submit
                 ('production', 'Production'),   # <- julian_date_code set
                 ('shipping', 'Ready to Ship'),  # <- all product_lot's filled in
                 ('transit', 'In Transit'),      # <- tracking number entered
@@ -164,6 +165,9 @@ class sample_request(osv.Model):
         'state': 'draft',
         'target_date': _get_target_date,
         }
+
+    def button_sample_submit(self, cr, uid, ids, context=None):
+        self.write(cr, uid, ids, {'state':'new'}, context=context)
 
     def create(self, cr, uid, values, context=None):
         user = self.pool.get('res.users').browse(cr, uid, uid, context=context)
@@ -272,28 +276,29 @@ class sample_request(osv.Model):
             user = self.pool.get('res.users').browse(cr, uid, uid, context=context)
             for record in self.browse(cr, SUPERUSER_ID, ids, context=context):
                 vals = values.copy()
-                proposed = Proposed(self, cr, values, record)
-                state = 'draft'
-                old_state = record.state
-                if proposed.julian_date_code:
-                    state = 'production'
-                if proposed.product_ids:
-                    for sample_product in proposed.product_ids:
-                        if not sample_product.product_lot:
-                            break
-                    else:
+                if 'state' not in vals:
+                    proposed = Proposed(self, cr, values, record)
+                    state = 'draft'
+                    old_state = record.state
+                    if proposed.julian_date_code:
+                        state = 'production'
+                    if proposed.product_ids:
+                        for sample_product in proposed.product_ids:
+                            if not sample_product.product_lot_used:
+                                break
+                        else:
+                            state = 'shipping'
+                    if proposed.finish_date:
                         state = 'shipping'
-                if proposed.finish_date:
-                    state = 'shipping'
-                if proposed.tracking:
-                    state = 'transit'
-                if proposed.received_datetime:
-                    state = 'complete'
-                if proposed.state != state:
-                    vals['state'] = state
-                if 'product_ids' in vals and old_state == 'production':
-                    if not user.has_group('sample.group_sample_user'):
-                        raise ERPError('Error', 'Order is already in Production.  Talk to someone in Samples to get more productios added.')
+                    if proposed.tracking:
+                        state = 'transit'
+                    if proposed.received_datetime:
+                        state = 'complete'
+                    if proposed.state != state:
+                        vals['state'] = state
+                    if 'product_ids' in vals and old_state == 'production':
+                        if not user.has_group('sample.group_sample_user'):
+                            raise ERPError('Error', 'Order is already in Production.  Talk to someone in Samples to get more productios added.')
                 super(sample_request, self).write(cr, uid, [record.id], vals, context=context)
             return True
         return super(sample_request, self).write(cr, uid, ids, values, context=context)
