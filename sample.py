@@ -288,8 +288,10 @@ class sample_request(osv.Model):
             user = self.pool.get('res.users').browse(cr, uid, uid, context=context)
             for record in self.browse(cr, SUPERUSER_ID, ids, context=context):
                 vals = values.copy()
+                product_ids = vals.get('product_ids')
                 if 'state' not in vals:
                     proposed = Proposed(self, cr, values, record)
+                    product_ids = proposed.product_ids
                     state = 'draft' if proposed.state == 'draft' else 'new'
                     old_state = record.state
                     if proposed.julian_date_code:
@@ -311,6 +313,8 @@ class sample_request(osv.Model):
                     if 'product_ids' in vals and old_state == 'production':
                         if not user.has_group('sample.group_sample_user'):
                             raise ERPError('Error', 'Order is already in Production.  Talk to someone in Samples to get more productios added.')
+                if vals['state'] != 'draft' and not product_ids:
+                    raise ERPError('Error', 'There are no products in this request.')
                 super(sample_request, self).write(cr, uid, [record.id], vals, context=context)
             return True
         return super(sample_request, self).write(cr, uid, ids, values, context=context)
