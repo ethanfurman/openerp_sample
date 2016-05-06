@@ -180,9 +180,10 @@ class sample_request(osv.Model):
         if isinstance(ids, (int, long)):
             ids = [ids]
         res = []
-        for record in self.browse(cr, uid, ids, context=context):
-            name = record.partner_id.name
-            res.append((record.id, name))
+        for record in self.read(cr, uid, ids, fields=['id', 'partner_id'], context=context):
+            id = record['id']
+            name = (record['partner_id'] or (None, ''))[1]
+            res.append((id, name))
         return res
 
     def _generate_order_by(self, order_spec, query):
