@@ -290,7 +290,7 @@ class sample_request(osv.Model):
                 vals = values.copy()
                 if 'state' not in vals:
                     proposed = Proposed(self, cr, values, record)
-                    state = 'draft'
+                    state = 'draft' if proposed.state == 'draft' else 'new'
                     old_state = record.state
                     if proposed.julian_date_code:
                         state = 'production'
