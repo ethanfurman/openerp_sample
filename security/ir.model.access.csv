@@ -1,7 +1,7 @@
 id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
 access_sample_request_all,sample.request all,model_sample_request,,1,0,0,0
 access_sample_request_user,sample.request user,model_sample_request,group_sample_user,1,1,1,0
-access_sample_request_sales,sample.request sales,model_sample_request,base.group_sale_salesman,1,1,1,0
+access_sample_request_sales,sample.request sales,model_sample_request,base.group_sale_salesman,1,1,1,1
 access_sample_request_shipping,sample.request shipping,model_sample_request,group_sample_shipping,1,1,0,0
 access_sample_request_picking,sample.request picking,model_sample_request,group_sample_picking,1,1,0,0
 access_sample_request_costing,sample.request costing,model_sample_request,group_sample_costing,1,0,0,0

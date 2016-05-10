@@ -282,6 +282,27 @@ class sample_request(osv.Model):
     def onload(self, cr, uid, ids, send_to, user_id, contact_id, partner_id, context=None):
         return self.onchange_partner_id(cr, uid, ids, send_to, user_id, contact_id, partner_id, context=context)
 
+    def unlink(self, cr, uid, ids, context=None):
+        #
+        # only allow if one of:
+        # - uid is owner
+        # - uid is manager
+        # and
+        # - request is Draft or Submitted (not Production, Transit, or Received)
+        #
+        res_users = self.pool.get('res.users')
+        user = res_users.browse(cr, uid, uid, context=None)
+        manager = user.has_group('base.group_sale_manager') or user.has_group('sample.group_sample_manager')
+        if isinstance(ids, (int, long)):
+            ids = [ids]
+        for request in self.read(cr, uid, ids, fields=['user_id', 'state'], context=context):
+            if request['state'] not in ('draft', 'new'):
+                raise ERPError('Bad Status', 'can only delete requests that are Draft or Submitted')
+            elif not manager and request['user_id'][0] != uid:
+                raise ERPError('Permission Denied', 'You may only delete your own requests')
+        else:
+            super(sample_request, self).unlink(cr, uid, ids, context=context)
+
     def write(self, cr, uid, ids, values, context=None):
         if ids:
             if isinstance(ids, (int, long)):
