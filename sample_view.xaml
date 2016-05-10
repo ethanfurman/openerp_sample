@@ -64,8 +64,8 @@
                                     @tracking .oe_edit_only writeonly="groups('sample.group_sample_user,sample.group_sample_shipping')"
                                     @tracking_url .oe_hide widget='url'
                                 ~group
-                                    @received_by writeonly="groups('sample.group_sample_user,sample.group_sample_shipping')"
-                                    @received_datetime writeonly="groups('sample.group_sample_user,sample.group_sample_shipping')"
+                                    @received_by writeonly="groups('base.group_sale_salesman,sample.group_sample_user,sample.group_sample_shipping')"
+                                    @received_datetime writeonly="groups('base.group_sale_salesman,sample.group_sample_user,sample.group_sample_shipping')"
                     ~div .oe_chatter
                         @message_follower_ids widget='mail_followers'
                         @message_ids widget='mail_thread' nolabel='1'
