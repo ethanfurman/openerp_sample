@@ -362,3 +362,15 @@ class sample_product(osv.Model):
         'product_cost': fields.float('Retail Price'),
         }
 
+    def button_same_lot_no(self, cr, uid, ids, context=None):
+        if isinstance(ids, (int, long)):
+            ids = [ids]
+        for product in self.read(cr, uid, ids, fields=['id', 'product_lot_requested'], context=context):
+            self.write(
+                    cr, uid,
+                    product['id'],
+                    {'product_lot_used': product['product_lot_requested']},
+                    context=context,
+                    )
+
+

@@ -114,6 +114,7 @@
                     @qty_id options="{'create':true, 'create_edit':false, 'limit':15, 'no_open':True}" writeonly="groups('base.group_sale_salesman,sample.group_sample_user')"
                     @product_id options="{'create':false, 'create_edit':false, 'limit':15}" writeonly="groups('base.group_sale_salesman,sample.group_sample_user')"
                     @product_lot_requested writeonly="groups('base.group_sale_salesman,sample.group_sample_user')"
+                    ~button @button_same_lot_no string="▶" .oe_edit_only type='object' attrs="{'invisible': ['|',('product_lot_requested','=',False),('product_lot_used','!=', False)]}"
                     @product_lot_used writeonly="groups('sample.group_sample_user,sample.group_sample_picker')"
                     @product_cost sum='Total Cost' widget='monetary' groups='base.group_sale_salesman'
 
