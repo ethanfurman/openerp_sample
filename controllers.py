@@ -16,6 +16,7 @@ from antipathy import Path
 from openerp.addons.fnx import Humanize
 
 _logger = logging.getLogger(__name__)
+style_sheet = getSampleStyleSheet()
 
 class SampleRequest(http.Controller):
 
@@ -32,7 +33,7 @@ class SampleRequest(http.Controller):
         registry = openerp.modules.registry.RegistryManager.get(target_company)
         with registry.cursor() as cr:
             order = registry.get('sample.request').browse(cr, SUPERUSER_ID, target_id)
-            file_data = self.create_pdf(Humanize(order, request.context))
+            file_data = self.create_pdf(Humanize(order, request.context), order.state=='complete')
             return request.make_response(
                     file_data,
                     headers=[
@@ -43,7 +44,7 @@ class SampleRequest(http.Controller):
                     )
 
 
-    def create_pdf(self, order):
+    def create_pdf(self, order, complete):
         # get data
         sales_left = self.get_sales_left(order)
         sales_right = self.get_sales_right(order)
@@ -54,10 +55,10 @@ class SampleRequest(http.Controller):
         shipping_left = self.get_shipping_left(order)
         shipping_right = self.get_shipping_right(order)
         # style it
-        styleSheet = getSampleStyleSheet()
         sections = []
-        sections.append(Paragraph("SunRidge Farms Samples Request", styleSheet['h1']))
+        sections.append(Paragraph("SunRidge Farms Samples Request", style_sheet['h1']))
         sections.append(Spacer(540, 18))
+        # header 
         table_left = Table(sales_left, colWidths=[108, 144], rowHeights=None, style=lines)
         table_right = Table(sales_right, colWidths=[108, 144], rowHeights=None, style=lines)
         table_top = Table(
@@ -84,27 +85,37 @@ class SampleRequest(http.Controller):
                     ('LINEBELOW', (0,0), (-1,0), 0.25, colors.black),
                     ('SPAN', (0,0), (-1,0)),
                     ('ALIGN', (0,0), (-1,0), 'CENTER'),
-                    ])
+                    ('ALIGN', (0,1), (0,1), 'LEFT'),
+                    ('ALIGN', (1,1), (1,1), 'CENTER'),
+                    ('ALIGN', (2,1), (2,1), 'RIGHT'),
+                    ]),
                 )
         sections.append(table_middle)
+        # first free-floating text
         sections.append(Spacer(540, 18))
         sections.append(
                 Table(
                     first_section,
                     colWidths=[125, 415],
                     rowHeights=None,
+                    style=TableStyle([
+                        ('VALIGN', (0,0), (0,0), 'TOP'),
+                        ]),
                 ))
         sections.append(Spacer(540, 18))
+        # items
         table_bottom = Table(
                 items,
-                colWidths=[108, 288, 144],
-                rowHeights=[20] + [30]*(len(items)-1),
+                colWidths=[108, 288, 60, 84],
+                rowHeights=[20] + [(30, None)[complete]]*(len(items)-1),
                 style=TableStyle([
                     ('LINEBELOW', (0,0), (-1,-1), 0.25, colors.black),
-                    ])
+                    ('ALIGN', (-1, 0), (-1, -1), 'RIGHT')
+                    ]),
                 )
         sections.append(table_bottom)
         sections.append(Spacer(540, 18))
+        # second free-floating text
         sections.append(
                 Table(
                     second_section,
@@ -112,6 +123,7 @@ class SampleRequest(http.Controller):
                     rowHeights=[30]*2,
                 ))
         sections.append(Spacer(540, 18))
+        # shipping
         table_shipping_left = Table(
                 shipping_left,
                 colWidths=[108, 144],
@@ -176,13 +188,18 @@ class SampleRequest(http.Controller):
                 ]
     def get_first_section(self, order):
         return [
-                ['Special Instructions:', order.instructions],
+                ['Special Instructions:', Paragraph(order.instructions, style_sheet['BodyText'])],
                 ]
 
     def get_items(self, order):
-        items = [['Qty', 'Item', 'Lot # Used']]
+        items = [['Qty', 'Item', 'Lot # Requested', '/     Used']]
         for item in order.product_ids:
-            items.append([item.qty_id.name, item.product_id.name_get, item.product_lot_used])
+            items.append([
+                item.qty_id.name,
+                item.product_id.name_get,
+                item.product_lot_requested,
+                (item.product_lot_used, '✓')[bool(item.product_lot_used) and item.product_lot_requested==item.product_lot_used],
+                ])
         return items
 
     def get_second_section(self, order):
