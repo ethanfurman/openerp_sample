@@ -329,7 +329,7 @@ class sample_request(osv.Model):
                     if proposed.received_datetime:
                         state = 'complete'
                     if proposed.state != state:
-                        vals['state'] = state
+                        proposed.state = vals['state'] = state
                     if 'product_ids' in vals and old_state != 'draft':
                         if not user.has_group('sample.group_sample_user'):
                             raise ERPError('Error', 'Order has already been submitted.  Talk to someone in Samples to get more products added.')
@@ -355,6 +355,7 @@ class sample_product(osv.Model):
 
     _columns = {
         'request_id': fields.many2one('sample.request', string='Request'),
+        'request_state': fields.related('request_id','state', type='char'),
         'qty_id': fields.many2one('sample.qty_label', string='Qty', oldname='qty'),
         'product_id': fields.many2one('product.product', string='Item', domain=[('categ_id','child_of','Saleable')]),
         'product_lot_requested': fields.char('Lot # Requested', size=24),
