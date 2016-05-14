@@ -40,8 +40,10 @@
                             @third_party_account writeonly="groups('base.group_sale_salesman,sample.group_sample_user')"
                             ~hr colspan='2'
                             @rep_time widget='float_time'
+                    ~hr
                     ~label for='product_ids'
                     @product_ids nolabel='1'
+                    ~hr
                     ~group
                         @prep_time writeonly="groups('sample.group_sample_user')" widget='float_time'
                         @finish_date $Finish_Date writeonly="groups('sample.group_sample_user,sample.group_sample_picking')"
