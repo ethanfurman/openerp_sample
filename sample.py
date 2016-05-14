@@ -124,6 +124,7 @@ class sample_request(osv.Model):
             ),
         'department': fields.selection([('marketing', 'SAMMA - Marketing'), ('sales', 'SAMSA - Sales')], string='Department', required=True, track_visibility='onchange'),
         'user_id': fields.many2one('res.users', 'Request by', required=True, track_visibility='onchange'),
+        'for_user_id': fields.many2one('res.users', 'Request for', track_visibility='onchange'),
         'create_date': fields.datetime('Request created on', readonly=True, track_visibility='onchange'),
         'send_to': fields.selection([('rep', 'Sales Rep'), ('customer', 'Customer')], string='Send to', required=True, track_visibility='onchange'),
         'target_date_type': fields.selection([('ship', 'Ship'), ('arrive', 'Arrive')], string='Samples must', required=True, track_visibility='onchange'),

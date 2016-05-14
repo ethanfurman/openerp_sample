@@ -21,7 +21,8 @@
                     ~group col='5'
                         ~group colspan='2'
                             @department widget='radio' writeonly="groups('base.group_sale_salesman,sample.group_sample_user')"
-                            @user_id writeonly="groups('base.group_sale_salesman,sample.group_sample_user')" options="{'limit':15, 'create':0, 'create_edit':0}"
+                            @user_id readonly="1" options="{'limit':15, 'create':0, 'create_edit':0}"
+                            @for_user_id $On_behalf_of writeonly="groups('base.group_sale_salesman,sample.group_sample_user')" options="{'limit':15, 'create':0, 'create_edit':0}"
                             @create_date readonly='1' $Created_on attrs="{'invisible': [('id','=',False)]}"
                             ~label for='target_date_type' string='Samples Must'
                             ~div colspan='1'
