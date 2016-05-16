@@ -14,6 +14,7 @@ import time
 from openerp.tools import DEFAULT_SERVER_DATE_FORMAT, DEFAULT_SERVER_DATETIME_FORMAT, ormcache
 
 from dbf import Date
+from fnx.finance import FederalHoliday
 from fnx.oe import Proposed
 
 _logger = logging.getLogger(__name__)
@@ -89,11 +90,12 @@ class sample_request(osv.Model):
         return res
 
     def _get_target_date(self, cr, uid, context=None):
+        # get the next third business day
         today = Date.strptime(
                 fields.date.context_today(self, cr, uid, context=context),
                 DEFAULT_SERVER_DATE_FORMAT,
                 )
-        target = today.replace(delta_day=3)
+        target = FederalHoliday.next_business_day(today, days=3)
         return target.strftime(DEFAULT_SERVER_DATE_FORMAT)
 
     def _get_tracking_url(self, cr, uid, ids, field_name, arg, context=None):
