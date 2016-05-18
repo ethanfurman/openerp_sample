@@ -6,23 +6,6 @@
 ~openerp
     ~data noupdate='0'
 
-        // initial partner segments
-
-        ~record model=partner_type #sample_partner_filter_all_customers
-            @name: All Customers
-            @default eval='1'
-            @partner_domain: [('is_company','=',1),('customer','=',1)]
-
-        ~record model=partner_type #sample_partner_filter_all_vendors
-            @name: All Vendors
-            @default eval='0'
-            @partner_domain: [('is_company','=',1),('supplier','=',1)]
-
-        ~record model=partner_type #sample_partner_filter_all_other
-            @name: All Other
-            @default eval='0'
-            @partner_domain: [('is_company','=',1),('customer','=',0),('supplier','=',0)]
-
         // common quantities
 
         ~record model=sample_qty #two_oz
@@ -69,4 +52,27 @@
             @default eval='True'
             @sequence eval='41'
             @description: Sample request has been received.
+
+
+    ~data noupdate='1'
+
+        // initial partner segments
+
+        ~record model=partner_type #sample_partner_filter_all_customers
+            @name: All Customers
+            @default eval='1'
+            @partner_domain: [('is_company','=',1),('customer','=',1)]
+            @active eval='1'
+
+        ~record model=partner_type #sample_partner_filter_all_vendors
+            @name: All Vendors
+            @default eval='0'
+            @partner_domain: [('is_company','=',1),('supplier','=',1)]
+            @active eval='1'
+
+        ~record model=partner_type #sample_partner_filter_all_other
+            @name: All Other
+            @default eval='0'
+            @partner_domain: [('is_company','=',1),('customer','=',0),('supplier','=',0)]
+            @active eval='1'
 

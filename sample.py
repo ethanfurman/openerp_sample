@@ -380,9 +380,14 @@ class sample_partner_type(osv.Model):
     _order = 'name'
 
     _columns = {
+        'active': fields.boolean('Active'),
         'name': fields.char('Description'),
         'partner_domain': fields.text('Domain to match'),
         'default': fields.boolean('Default', help='Use this domain as the default domain'),
+        }
+
+    _defaults = {
+        'active': True,
         }
 
 

@@ -115,6 +115,7 @@
             @model: sample.partner_type
             @arch type='xml'
                 ~tree $Sample_Partner_Type editable='bottom'
+                    @active
                     @name
                     @partner_domain
                     @default
