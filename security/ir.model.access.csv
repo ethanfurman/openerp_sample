@@ -20,3 +20,5 @@ access_sample_qty_label_shipping,sample.qty_label shipping,model_sample_qty_labe
 access_sample_qty_label_picking,sample.qty_label picking,model_sample_qty_label,group_sample_picking,1,0,0,0
 access_sample_qty_label_costing,sample.qty_label costing,model_sample_qty_label,group_sample_costing,1,0,0,0
 access_sample_qty_label_manager,sample.qty_label manager,model_sample_qty_label,group_sample_manager,1,1,1,1
+access_sample_parter_type,sample.partner_type,model_sample_partner_type,group_sample_manager,1,1,1,1
+access_sample_parter_type,sample.partner_type,model_sample_partner_type,base.group_sale_manager,1,1,1,1

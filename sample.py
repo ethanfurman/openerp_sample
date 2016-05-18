@@ -74,10 +74,10 @@ class sample_request(osv.Model):
             }
         }
 
-    def __init__(self, pool, cr):
-        'update send_to data'
-        cr.execute("UPDATE sample_request SET send_to='customer' WHERE send_to='address'")
-        return super(sample_request, self).__init__(pool, cr)
+    # def __init__(self, pool, cr):
+    #     'update send_to data'
+    #     cr.execute("UPDATE sample_request SET send_to='customer' WHERE send_to='address'")
+    #     return super(sample_request, self).__init__(pool, cr)
 
     def _get_pdf(self, cr, uid, ids, field_name, arg, context=None):
         res = {}
@@ -127,6 +127,7 @@ class sample_request(osv.Model):
         'department': fields.selection([('marketing', 'SAMMA - Marketing'), ('sales', 'SAMSA - Sales')], string='Department', required=True, track_visibility='onchange'),
         'user_id': fields.many2one('res.users', 'Request by', required=True, track_visibility='onchange'),
         'for_user_id': fields.many2one('res.users', 'Request for', track_visibility='onchange'),
+        'partner_type': fields.many2one('sample.partner_type', 'Filter', track_visibility='onchange'),
         'create_date': fields.datetime('Request created on', readonly=True, track_visibility='onchange'),
         'send_to': fields.selection([('rep', 'Sales Rep'), ('customer', 'Customer')], string='Send to', required=True, track_visibility='onchange'),
         'target_date_type': fields.selection([('ship', 'Ship'), ('arrive', 'Arrive')], string='Samples must', required=True, track_visibility='onchange'),
@@ -273,6 +274,33 @@ class sample_request(osv.Model):
         res['value']['address'] = self._get_address(cr, uid, send_to, user_id, contact_id, partner_id, context=context)
         return res
 
+    def onchange_partner_type(self, cr, uid, ids, partner_type, partner_id, context=None):
+        res = {'value': {}, 'domain': {}}
+        sample_partner_type = self.pool.get('sample.partner_type')
+        domain = ''
+        if partner_type:
+            # find matching domain
+            partner_type = sample_partner_type.read(cr, SUPERUSER_ID, [('id','=',partner_type)], fields=['partner_domain'])[0]
+            domain = partner_type['partner_domain']
+        else:
+            # find default domain -- if none, use a default of all company customers
+            default = sample_partner_type.read(cr, SUPERUSER_ID, [('default','=',True)], fields=['name','partner_domain'])
+            if default:
+                [default] = default
+                domain = default['partner_domain']
+                res['value']['partner_type'] = default['id']
+            else:
+                domain = "[('is_company','=',1),('customer','=',1)]"
+        if partner_id:
+            # ensure current partner meets new domain requirements
+            res_partner = self.pool.get('res.partner')
+            check_partner = eval(domain) + [('id','=',partner_id)]
+            matches = res_partner.search(cr, uid, check_partner, context=context)
+            if not matches:
+                res['value']['partner_id'] = False
+        res['domain']['partner_id'] = domain
+        return res
+
     def onchange_send_to(self, cr, uid, ids, send_to, user_id, contact_id, partner_id, request_ship, context=None):
         res = {'value': {}, 'domain': {}}
         res['value']['address'] = self._get_address(cr, uid, send_to, user_id, contact_id, partner_id, context=context)
@@ -283,7 +311,12 @@ class sample_request(osv.Model):
         return res
 
     def onload(self, cr, uid, ids, send_to, user_id, contact_id, partner_id, context=None):
-        return self.onchange_partner_id(cr, uid, ids, send_to, user_id, contact_id, partner_id, context=context)
+        partner_id_res = self.onchange_partner_id(cr, uid, ids, send_to, user_id, contact_id, partner_id, context=context)
+        partner_type_res = self.onchange_partner_type(cr, uid, ids, 0, partner_id, context=context)
+        res = partner_id_res.copy()
+        res['value'].update(partner_type_res['value'])
+        res['domain'].update(partner_type_res['domain'])
+        return res
 
     def unlink(self, cr, uid, ids, context=None):
         #
@@ -341,6 +374,16 @@ class sample_request(osv.Model):
                 super(sample_request, self).write(cr, uid, [record.id], vals, context=context)
             return True
         return super(sample_request, self).write(cr, uid, ids, values, context=context)
+
+class sample_partner_type(osv.Model):
+    _name = 'sample.partner_type'
+    _order = 'name'
+
+    _columns = {
+        'name': fields.char('Description'),
+        'partner_domain': fields.text('Domain to match'),
+        'default': fields.boolean('Default', help='Use this domain as the default domain'),
+        }
 
 
 class sample_qty_label(osv.Model):
