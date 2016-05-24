@@ -100,6 +100,13 @@
                     ~filter $Active_Requests @type_active domain="[('state','not in',['draft','complete'])]"
                     ~filter $Complete_Requests @type_complete domain="[('state','=','complete')]"
 
+        ~record model=act_window #sample_request_history_action
+            @name: Sample Request History
+            @res_model: sample.request
+            @view_type: form
+            @view_mode: tree,form
+            @context: {'search_default_type_complete': 1}
+
         ~record model=act_window #sample_request_action
             @name: Sample Request
             @res_model: sample.request
