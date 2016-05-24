@@ -133,7 +133,7 @@ class sample_request(osv.Model):
         'target_date_type': fields.selection([('ship', 'Ship'), ('arrive', 'Arrive')], string='Samples must', required=True, track_visibility='onchange'),
         'target_date': fields.date('Target Date', required=True, track_visibility='onchange'),
         'instructions': fields.text('Special Instructions', track_visibility='onchange'),
-        'partner_id': fields.many2one('res.partner', 'Company', required=True, track_visibility='onchange'),
+        'partner_id': fields.many2one('res.partner', 'Company', track_visibility='onchange'),
         'partner_is_company': fields.related('partner_id', 'is_company', type='boolean', string='Partner is Company'),
         'contact_id': fields.many2one('res.partner', 'Contact', track_visibility='onchange'),
         'contact_name': fields.related('contact_id', 'name', type='char', size=64, string='Contact Name'),
