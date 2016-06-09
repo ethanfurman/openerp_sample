@@ -1,0 +1,19 @@
+!!! xml1.0
+~openerp
+    ~data
+
+        ~record model='ir.actions.act_window' #sample_request_defaults_action
+            @name: Set Defaults
+            @type: ir.actions.act_window
+            @res_model: wizard.sample.request.defaults
+            @src_model: sample.request
+            @view_mode: form
+            @target: new
+
+        ~record model='ir.values' #event_set_sample_request_defaults
+            @name: Set Sample Request Defaults
+            @model_id ref='sample.model_sample_request'
+            @value eval="'ir.actions.act_window,' + str(ref('sample_request_defaults_action'))"
+            @model: sample.request
+            @key2: client_action_relate
+

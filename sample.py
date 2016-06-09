@@ -170,6 +170,13 @@ class sample_request(osv.Model):
         'target_date': _get_target_date,
         }
 
+    _user_defaultable = [
+        'department', 'for_user_id', 'partner_type', 'send_to', 'target_date_type', 'instructions',
+        'address_type', 'ice', 'request_ship',
+        ('product_ids', ['product_id', 'product_lot_requested', 'qty_id']),
+        ('message_follower_ids', ['name']),
+        ]
+
     def button_sample_submit(self, cr, uid, ids, context=None):
         self.write(cr, uid, ids, {'state':'new'}, context=context)
 
@@ -189,18 +196,6 @@ class sample_request(osv.Model):
             name = (record['partner_id'] or (None, ''))[1]
             res.append((id, name))
         return res
-
-    def _generate_order_by(self, order_spec, query):
-        "correctly orders state field if state is in query"
-        order_by = super(sample_request, self)._generate_order_by(order_spec, query)
-        if order_spec and 'state ' in order_spec:
-            state_column = self._columns['state']
-            state_order = 'CASE '
-            for i, state in enumerate(state_column.selection):
-                state_order += "WHEN %s.state='%s' THEN %i " % (self._table, state[0], i)
-            state_order += 'END '
-            order_by = order_by.replace('"%s"."state" ' % self._table, state_order)
-        return order_by
 
     def _get_address(self, cr, uid, send_to, user_id, contact_id, partner_id, context=None):
         res_partner = self.pool.get('res.partner')

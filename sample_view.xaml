@@ -43,7 +43,7 @@
                             @rep_time widget='float_time'
                     ~hr
                     ~label for='product_ids'
-                    @product_ids nolabel='1'
+                    @product_ids nolabel='1' context="{'tree_view_ref': 'sample.sample_product_list_full'}"
                     ~hr
                     ~group
                         @prep_time writeonly="groups('sample.group_sample_user')" widget='float_time'
@@ -137,9 +137,10 @@
         ~menuitem @Samples sequence='99' parent='base.menu_base_config' groups='base.group_sale_manager' #menu_sample_config
         ~menuitem @Partner_Segmentation parent='menu_sample_config' #menu_sample_config_partner_segmentation action='sample_partner_type_action'
 
-        ~record model=view #sample_product_list
+        ~record model=view #sample_product_list_full
             @name: sample.product.list
             @model: sample.product
+            @priority eval='20'
             @arch type='xml'
                 ~tree $Products editable='bottom'
                     @request_state invisible='1'
@@ -149,6 +150,16 @@
                     ~button @button_same_lot_no string="▶" .oe_edit_only type='object' attrs="{'invisible': ['|','|',('request_state','!=','production'),('product_lot_requested','=',False),('product_lot_used','!=', False)]}"
                     @product_lot_used writeonly="groups('sample.group_sample_user,sample.group_sample_picker')"
                     @product_cost sum='Total Cost' widget='monetary' groups='base.group_sale_salesman'
+
+        ~record model=view #sample_product_list
+            @name: sample.product.list
+            @model: sample.product
+            @priority eval='10'
+            @arch type='xml'
+                ~tree $Products editable='bottom'
+                    @qty_id options="{'create':true, 'create_edit':false, 'limit':15, 'no_open':True}" writeonly="groups('base.group_sale_salesman,sample.group_sample_user')"
+                    @product_id options="{'create':false, 'create_edit':false, 'limit':15}" writeonly="groups('base.group_sale_salesman,sample.group_sample_user')"
+                    @product_lot_requested writeonly="groups('base.group_sale_salesman,sample.group_sample_user')"
 
         ~menuitem @Samples groups="sample.group_sample_user,sample.group_sample_shipping,sample.group_sample_picking,sample.group_sample_guest" #sample_main
         ~menuitem @Samples sequence='10' parent='sample_main' #sample_sub
