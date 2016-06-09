@@ -123,6 +123,7 @@ class sample_request(osv.Model):
                 ('complete', 'Received'),       # <- received_datetime entered
                 ),
             string='Status',
+            sort_order='definition',
             ),
         'department': fields.selection([('marketing', 'SAMMA - Marketing'), ('sales', 'SAMSA - Sales')], string='Department', required=True, track_visibility='onchange'),
         'user_id': fields.many2one('res.users', 'Request by', required=True, track_visibility='onchange'),
