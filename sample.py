@@ -67,6 +67,7 @@ class sample_request(osv.Model):
 
     _track = {
         'state' : {
+            'sample.mt_sample_request_draft': lambda s, c, u, r, ctx: r['state'] == 'draft',
             'sample.mt_sample_request_new': lambda s, c, u, r, ctx: r['state'] == 'new',
             'sample.mt_sample_request_production': lambda s, c, u, r, ctx: r['state'] == 'production',
             'sample.mt_sample_request_ready': lambda s, c, u, r, ctx: r['state'] == 'shipping',

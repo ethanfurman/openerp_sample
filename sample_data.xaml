@@ -18,11 +18,18 @@
 
         // mail message subtypes
 
+        ~record model='mail.message.subtype' #mt_sample_request_draft
+            @name: Request Created
+            @res_model: sample.request
+            @default eval='False'
+            @sequence eval='1'
+            @description: Sample request submitted.
+
         ~record model='mail.message.subtype' #mt_sample_request_new
             @name: Request Submitted
             @res_model: sample.request
             @default eval='True'
-            @sequence eval='1'
+            @sequence eval='5'
             @description: Sample request submitted.
 
         ~record model='mail.message.subtype' #mt_sample_request_production
