@@ -63,6 +63,7 @@ class sample_request(osv.Model):
     _name = 'sample.request'
     _inherit = ['mail.thread']
     _order = 'state, create_date'
+    _description = 'Sample Request'
 
     _track = {
         'state' : {
