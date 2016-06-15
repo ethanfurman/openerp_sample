@@ -181,14 +181,13 @@ class sample_request(osv.Model):
         ]
 
     def button_sample_submit(self, cr, uid, ids, context=None):
-        self.write(cr, uid, ids, {'state':'new'}, context=context)
-
-    def create(self, cr, uid, values, context=None):
+        # add the sample followers at this point
         user = self.pool.get('res.users').browse(cr, uid, uid, context=context)
+        values = {'state': 'new'}
         follower_ids = [u.id for u in user.company_id.sample_request_followers_ids]
         if follower_ids:
             values['message_follower_user_ids'] = follower_ids
-        return super(sample_request, self).create(cr, uid, values, context=context)
+        super(sample_request, self).write(cr, uid, ids, values, context=context)
 
     def name_get(self, cr, uid, ids, context=None):
         if isinstance(ids, (int, long)):
@@ -362,6 +361,9 @@ class sample_request(osv.Model):
                         state = 'transit'
                     if proposed.received_datetime:
                         state = 'complete'
+                    if proposed.state == 'draft' and state != 'draft':
+                        # make sure 'submit' happens before other, later, states
+                        self.button_sample_submit(cr, uid, ids, context=context)
                     if proposed.state != state:
                         proposed.state = vals['state'] = state
                     if 'product_ids' in vals and old_state != 'draft':
