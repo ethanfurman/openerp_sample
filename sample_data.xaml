@@ -82,4 +82,3 @@
             @default eval='0'
             @partner_domain: [('is_company','=',1),('customer','=',0),('supplier','=',0)]
             @active eval='1'
-

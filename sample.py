@@ -38,6 +38,7 @@ COMMON_SHIPPING = (
         ('ontrac_overnight', 'ONTRAC Overnight (late PM)'),
         ('ontrac_2', 'ONTRACK 2-Day'),
         ('rep', 'Deliver to Sales Rep'),
+        ('invoice', 'Ship with Invoice'),
         ('dhl', 'DHL (give to receptionist)'),
         )
 
@@ -206,6 +207,8 @@ class sample_request(osv.Model):
             user = self.pool.get('res.users').browse(cr, uid, user_id, context=context)
             rep = user.partner_id
             label = rep.name + '\n' + res_partner._display_address(cr, uid, rep)
+        elif send_to == 'invoice':
+            label = 'combine with regular order'
         elif send_to:
             label = False
             if contact_id:
