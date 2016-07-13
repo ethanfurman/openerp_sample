@@ -13,9 +13,10 @@ import base64
 import time
 from openerp.tools import DEFAULT_SERVER_DATE_FORMAT, DEFAULT_SERVER_DATETIME_FORMAT, ormcache
 
-from dbf import Date
+from dbf import Date, DateTime
 from fnx.finance import FederalHoliday
 from fnx.oe import Proposed
+from fnx.utils import contains_any
 
 _logger = logging.getLogger(__name__)
 
@@ -92,6 +93,33 @@ class sample_request(osv.Model):
                 res[id] = '<a href="/samplerequest/%s/SampleRequest_%d.pdf">Printer Friendly</a>' % (dbname, id)
         return res
 
+    def _get_rush(self, cr, uid, ids, field_name, arg, context=None):
+        # for target date type of 'shipping', less than three business days is a RUSH
+        # for target date type of 'arrive', 1, 2, and 3 day shipping are subtracted from
+        # total business days, and less than three is a RUSH
+        res = {}
+        if isinstance(ids, (int, long)):
+            ids = [ids]
+        for data_rec in self.read(cr, uid, ids, ['id', 'create_date', 'target_date', 'target_date_type', 'request_ship'], context=context):
+            in_plant_days_limit = 3
+            days_available = FederalHoliday.count_business_days(
+                    DateTime(data_rec['create_date']).date(),
+                    Date(data_rec['target_date']),
+                    )
+            if data_rec['target_date_type'] == 'arrive':
+                if contains_any(data_rec['request_ship'], 'first', 'next', 'overnight'):
+                    days_available -= 1
+                elif contains_any(data_rec['request_ship'], '2'):
+                    days_available -= 2
+                elif contains_any(data_rec['request_ship'], '3'):
+                    days_available -= 3
+            if days_available < in_plant_days_limit:
+                text = 'R U S H'
+            else:
+                text = False
+            res[data_rec['id']] = text
+        return res
+
     def _get_target_date(self, cr, uid, context=None):
         # get the next third business day
         today = Date.strptime(
@@ -136,6 +164,18 @@ class sample_request(osv.Model):
         'send_to': fields.selection([('rep', 'Sales Rep'), ('customer', 'Customer')], string='Send to', required=True, track_visibility='onchange'),
         'target_date_type': fields.selection([('ship', 'Ship'), ('arrive', 'Arrive')], string='Samples must', required=True, track_visibility='onchange'),
         'target_date': fields.date('Target Date', required=True, track_visibility='onchange'),
+        'rush': fields.function(
+            _get_rush,
+            type='char',
+            size=10,
+            store={
+                'sample.request': (
+                    lambda k, c, u, ids, ctx: ids,
+                    ['target_date', 'target_date_type', 'request_ship'],
+                    10,
+                    )
+                },
+            ),
         'instructions': fields.text('Special Instructions', track_visibility='onchange'),
         'partner_id': fields.many2one('res.partner', 'Company', track_visibility='onchange'),
         'partner_is_company': fields.related('partner_id', 'is_company', type='boolean', string='Partner is Company'),

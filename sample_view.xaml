@@ -14,6 +14,8 @@
                     ~header
                         ~button @button_sample_submit $Submit .oe_edit_hide type='object' attrs="{'invisible': [('state','!=', 'draft')]}"
                         @state widget='statusbar'
+                        ~h2
+                            @rush .oe_highlight .oe_text_center .oe_bold attrs="{'invisible': ['|',('rush','=',False),('state','in',['complete','cancelled'])], 'readonly':True}"
                     @id invisible='1'
                     @partner_is_company invisible='1'
                     ~span
@@ -78,7 +80,8 @@
             @name: sample.request.list
             @model: sample.request
             @arch type='xml'
-                ~tree $Sample_Request
+                ~tree $Sample_Request colors='red:rush!=False'
+                    @rush invisible='1'
                     @create_date
                     @contact_id
                     @partner_id
