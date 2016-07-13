@@ -38,9 +38,10 @@ COMMON_SHIPPING = (
         ('ontrac_next', 'ONTRAC Next Overnight (early AM)'),
         ('ontrac_overnight', 'ONTRAC Overnight (late PM)'),
         ('ontrac_2', 'ONTRACK 2-Day'),
+        ('dhl', 'DHL (give to receptionist)'),
         ('rep', 'Deliver to Sales Rep'),
         ('invoice', 'Ship with Invoice'),
-        ('dhl', 'DHL (give to receptionist)'),
+        ('northbay', 'Falcon North Bay Truck'),
         )
 
 REQUEST_SHIPPING = (
