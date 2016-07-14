@@ -98,6 +98,8 @@ class sample_request(osv.Model):
         # for target date type of 'shipping', less than three business days is a RUSH
         # for target date type of 'arrive', 1, 2, and 3 day shipping are subtracted from
         # total business days, and less than three is a RUSH
+        #
+        # TODO: calculate using submit_date if available
         res = {}
         if isinstance(ids, (int, long)):
             ids = [ids]
@@ -108,7 +110,7 @@ class sample_request(osv.Model):
                     Date(data_rec['target_date']),
                     )
             if data_rec['target_date_type'] == 'arrive':
-                if contains_any(data_rec['request_ship'], 'first', 'next', 'overnight'):
+                if contains_any(data_rec['request_ship'], 'first', 'next', 'overnight', '1'):
                     days_available -= 1
                 elif contains_any(data_rec['request_ship'], '2'):
                     days_available -= 2
