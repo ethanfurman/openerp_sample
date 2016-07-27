@@ -12,7 +12,7 @@
             @arch type='xml'
                 ~form $Sample_Request version='7.0' setup='onload(send_to, user_id, contact_id, partner_id, context)'
                     ~header
-                        ~button @button_sample_submit $Submit .oe_edit_hide type='object' attrs="{'invisible': [('state','!=', 'draft')]}"
+                        ~button @button_sample_submit $Submit .oe_edit_hide type='object' attrs="{'invisible': ['|',('state','!=', 'draft'),('product_ids','=',[])]}"
                         @state widget='statusbar'
                         ~h2
                             @rush .oe_highlight .oe_text_center .oe_bold attrs="{'invisible': ['|',('rush','=',False),('state','in',['complete','cancelled'])], 'readonly':True}"

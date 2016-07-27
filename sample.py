@@ -225,13 +225,19 @@ class sample_request(osv.Model):
         ]
 
     def button_sample_submit(self, cr, uid, ids, context=None):
+        # make sure all requests have product
+        if isinstance(ids, (int, long)):
+            ids = [ids]
+        for data in self.read(cr, uid, ids, fields=['product_ids'], context=context):
+            if data['product_ids'] == []:
+                raise ERPError('Missing Products', 'Sample request has no products listed!')
         # add the sample followers at this point
         user = self.pool.get('res.users').browse(cr, uid, uid, context=context)
         values = {'state': 'new'}
-        follower_ids = [u.id for u in user.company_id.sample_request_followers_ids]
+        follower_ids = [u.partner_id.id for u in user.company_id.sample_request_followers_ids]
         if follower_ids:
-            values['message_follower_user_ids'] = follower_ids
-        super(sample_request, self).write(cr, uid, ids, values, context=context)
+            self.message_subscribe(cr, uid, ids, follower_ids, context=context)
+        return super(sample_request, self).write(cr, uid, ids, values, context=context)
 
     def name_get(self, cr, uid, ids, context=None):
         if isinstance(ids, (int, long)):
