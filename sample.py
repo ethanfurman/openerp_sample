@@ -98,28 +98,36 @@ class sample_request(osv.Model):
         # for target date type of 'shipping', less than three business days is a RUSH
         # for target date type of 'arrive', 1, 2, and 3 day shipping are subtracted from
         # total business days, and less than three is a RUSH
-        #
-        # TODO: calculate using submit_date if available
         res = {}
         if isinstance(ids, (int, long)):
             ids = [ids]
-        for data_rec in self.read(cr, uid, ids, ['id', 'create_date', 'target_date', 'target_date_type', 'request_ship'], context=context):
-            in_plant_days_limit = 3
-            days_available = FederalHoliday.count_business_days(
-                    DateTime(data_rec['create_date']).date(),
-                    Date(data_rec['target_date']),
-                    )
-            if data_rec['target_date_type'] == 'arrive':
-                if contains_any(data_rec['request_ship'], 'first', 'next', 'overnight', '1'):
-                    days_available -= 1
-                elif contains_any(data_rec['request_ship'], '2'):
-                    days_available -= 2
-                elif contains_any(data_rec['request_ship'], '3'):
-                    days_available -= 3
-            if days_available < in_plant_days_limit:
-                text = 'R U S H'
-            else:
+        for data_rec in self.read(
+                cr, uid, ids,
+                ['id', 'actual_ship_date', 'create_date', 'request_ship', 'submit_datetime', 'target_date', 'target_date_type'],
+                context=context,
+                ):
+            if data_rec['actual_ship_date'] or not data_rec['submit_datetime']:
+                # order has shipped, or not been submitted yet
                 text = False
+            else:
+                # order has been submitted, request_ship may have changed
+                in_plant_days_limit = 3
+                starting_date = data_rec['submit_datetime']
+                days_available = FederalHoliday.count_business_days(
+                        DateTime(starting_date).date(),
+                        Date(data_rec['target_date']),
+                        )
+                if data_rec['target_date_type'] == 'arrive':
+                    if contains_any(data_rec['request_ship'], 'first', 'next', 'overnight', '1'):
+                        days_available -= 1
+                    elif contains_any(data_rec['request_ship'], '2'):
+                        days_available -= 2
+                    elif contains_any(data_rec['request_ship'], '3'):
+                        days_available -= 3
+                if days_available < in_plant_days_limit:
+                    text = 'R U S H'
+                else:
+                    text = False
             res[data_rec['id']] = text
         return res
 
@@ -174,7 +182,7 @@ class sample_request(osv.Model):
             store={
                 'sample.request': (
                     lambda k, c, u, ids, ctx: ids,
-                    ['target_date', 'target_date_type', 'request_ship'],
+                    ['actual_ship_date', 'request_ship', 'submit_datetime', 'target_date', 'target_date_type'],
                     10,
                     )
                 },
@@ -185,6 +193,7 @@ class sample_request(osv.Model):
         'contact_id': fields.many2one('res.partner', 'Contact', track_visibility='onchange'),
         'contact_name': fields.related('contact_id', 'name', type='char', size=64, string='Contact Name'),
         'rep_time': fields.float("Rep's Time"),
+        'submit_datetime': fields.datetime('Date Submitted', track_visibility='onchange'),
         # fields needed for shipping
         'address': fields.text(string='Shipping Label'),
         'address_type': fields.selection([('business', 'Commercial'), ('personal', 'Residential')], string='Address type', required=True, track_visibility='onchange'),
@@ -233,7 +242,10 @@ class sample_request(osv.Model):
                 raise ERPError('Missing Products', 'Sample request has no products listed!')
         # add the sample followers at this point
         user = self.pool.get('res.users').browse(cr, uid, uid, context=context)
-        values = {'state': 'new'}
+        values = {
+                'state': 'new',
+                'submit_datetime': fields.date.context_today(self, cr, uid, context=context),
+                }
         follower_ids = [u.partner_id.id for u in user.company_id.sample_request_followers_ids]
         if follower_ids:
             self.message_subscribe(cr, uid, ids, follower_ids, context=context)
