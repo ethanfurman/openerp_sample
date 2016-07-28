@@ -29,8 +29,10 @@
                             ~label for='target_date_type' string='Samples Must'
                             ~div colspan='1'
                                 @target_date_type .oe_inline writeonly="groups('base.group_sale_salesman,sample.group_sample_user')"
-                                by
+                                on
                                 @target_date .oe_inline writeonly="groups('base.group_sale_salesman,sample.group_sample_user')"
+                                ~span .oe_edit_hide attrs="{'invisible': [('ship_early','=',False)]}": (or earlier)
+                            @ship_early .oe_edit_only
                             @send_to on_change='onchange_send_to(send_to, user_id, contact_id, partner_id, request_ship, context)' widget='radio' writeonly="groups('base.group_sale_salesman,sample.group_sample_user')"
                             @partner_type $Company_Filter widget='selection' on_change='onchange_partner_type(partner_type, partner_id, context)' options="{'limit':15, 'create':0, 'create_edit':0}"
                             @partner_id on_change='onchange_partner_id(send_to, user_id, contact_id, partner_id, context)' options="{'limit':15, 'create':0, 'create_edit':0}" domain="['|',('customer','=',1),('user_ids','!=',False)]" writeonly="groups('base.group_sale_salesman,sample.group_sample_user')"

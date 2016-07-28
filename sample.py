@@ -199,6 +199,7 @@ class sample_request(osv.Model):
         'address_type': fields.selection([('business', 'Commercial'), ('personal', 'Residential')], string='Address type', required=True, track_visibility='onchange'),
         'ice': fields.boolean('Add ice', track_visibility='onchange'),
         'request_ship': fields.selection(REQUEST_SHIPPING, string='Ship Via', required=True, track_visibility='onchange'),
+        'ship_early': fields.boolean('Okay to ship early'),
         'actual_ship': fields.selection(COMMON_SHIPPING, string='Actual Shipping Method', track_visibility='onchange'),
         'actual_ship_date': fields.date('Shipped on', track_visibility='onchange'),
         'third_party_account': fields.char('3rd Party Account Number', size=64, track_visibility='onchange'),
