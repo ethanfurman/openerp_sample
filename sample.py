@@ -234,13 +234,6 @@ class sample_request(osv.Model):
         ]
 
     def button_sample_submit(self, cr, uid, ids, context=None):
-        # make sure all requests have product
-        if isinstance(ids, (int, long)):
-            ids = [ids]
-        for data in self.read(cr, uid, ids, fields=['product_ids'], context=context):
-            if data['product_ids'] == []:
-                raise ERPError('Missing Products', 'Sample request has no products listed!')
-        # add the sample followers at this point
         user = self.pool.get('res.users').browse(cr, uid, uid, context=context)
         values = {
                 'state': 'new',
@@ -249,7 +242,7 @@ class sample_request(osv.Model):
         follower_ids = [u.partner_id.id for u in user.company_id.sample_request_followers_ids]
         if follower_ids:
             self.message_subscribe(cr, uid, ids, follower_ids, context=context)
-        return super(sample_request, self).write(cr, uid, ids, values, context=context)
+        return self.write(cr, uid, ids, values, context=context)
 
     def name_get(self, cr, uid, ids, context=None):
         if isinstance(ids, (int, long)):
@@ -409,7 +402,7 @@ class sample_request(osv.Model):
                 if 'state' not in vals:
                     state = 'draft' if proposed.state == 'draft' else 'new'
                     old_state = record.state
-                    if proposed.julian_date_code:
+                    if any([proposed.invoice, proposed.julian_date_code, proposed.production_order]):
                         state = 'production'
                     if proposed.product_ids:
                         for sample_product in proposed.product_ids:
@@ -419,9 +412,9 @@ class sample_request(osv.Model):
                             state = 'shipping'
                     if proposed.finish_date:
                         state = 'shipping'
-                    if proposed.tracking:
+                    if any([proposed.actual_ship, proposed.actual_ship_date, proposed.tracking]):
                         state = 'transit'
-                    if proposed.received_datetime:
+                    if any([proposed.received_by, proposed.received_datetime]):
                         state = 'complete'
                     if proposed.state == 'draft' and state != 'draft':
                         # make sure 'submit' happens before other, later, states
@@ -432,7 +425,7 @@ class sample_request(osv.Model):
                         if not user.has_group('sample.group_sample_user'):
                             raise ERPError('Error', 'Order has already been submitted.  Talk to someone in Samples to get more products added.')
                 if proposed.state != 'draft' and not proposed.product_ids:
-                    raise ERPError('Error', 'There are no products in this request.')
+                    raise ERPError('Missing Products', 'Sample request has no products listed!')
                 super(sample_request, self).write(cr, uid, [record.id], vals, context=context)
             return True
         return super(sample_request, self).write(cr, uid, ids, values, context=context)

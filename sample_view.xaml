@@ -67,7 +67,7 @@
                                     @actual_ship_date writeonly="groups('sample.group_sample_user,sample.group_sample_shipping')"
                                 ~group
                                     @shipping_cost widget='monetary' writeonly="groups('sample.group_sample_user,sample.group_sample_shipping')"
-                                    @tracking .oe_edit_only writeonly="groups('sample.group_sample_user,sample.group_sample_shipping')"
+                                    @tracking .oe_edit_only writeonly="groups('sample.group_sample_user,sample.group_sample_shipping')" attrs="{'readonly': [('actual_ship','=',False)]}"
                                     @tracking_url .oe_edit_hide widget='url'
                                 ~group
                                     @received_by writeonly="groups('base.group_sale_salesman,sample.group_sample_user,sample.group_sample_shipping')"
