@@ -103,11 +103,14 @@ class sample_request(osv.Model):
             ids = [ids]
         for data_rec in self.read(
                 cr, uid, ids,
-                ['id', 'actual_ship_date', 'create_date', 'request_ship', 'submit_datetime', 'target_date', 'target_date_type'],
+                ['id', 'actual_ship_date', 'create_date', 'request_ship', 'state', 'submit_datetime', 'target_date', 'target_date_type'],
                 context=context,
                 ):
             if data_rec['actual_ship_date'] or not data_rec['submit_datetime']:
                 # order has shipped, or not been submitted yet
+                text = False
+            elif data_rec['state'] not in ('production', 'shipping'):
+                # once it's on its way we can no longer affect it
                 text = False
             else:
                 # order has been submitted, request_ship may have changed
@@ -182,7 +185,7 @@ class sample_request(osv.Model):
             store={
                 'sample.request': (
                     lambda k, c, u, ids, ctx: ids,
-                    ['actual_ship_date', 'request_ship', 'submit_datetime', 'target_date', 'target_date_type'],
+                    ['request_ship', 'state', 'submit_datetime', 'target_date', 'target_date_type'],
                     10,
                     )
                 },
