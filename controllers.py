@@ -56,11 +56,19 @@ class SampleRequest(http.Controller):
         shipping_right = self.get_shipping_right(order)
         # style it
         sections = []
-        sections.append(Paragraph("SunRidge Farms Samples Request", style_sheet['h1']))
+        # title
+        sections.append(Table(
+            [[
+                Paragraph('SunRidge Farms Samples Request', style_sheet['h1']),
+                Paragraph(order.rush, style_sheet['h1']),
+                ]],
+            colWidths=[450, 90],
+            rowHeights=None,
+            ))
         sections.append(Spacer(540, 18))
         # header 
-        table_left = Table(sales_left, colWidths=[108, 144], rowHeights=None, style=lines)
-        table_right = Table(sales_right, colWidths=[108, 144], rowHeights=None, style=lines)
+        table_left = Table(sales_left, colWidths=[108, 150], rowHeights=None, style=lines)
+        table_right = Table(sales_right, colWidths=[108, 136], rowHeights=None, style=lines)
         table_top = Table(
                 [[table_left, '', table_right]],
                 colWidths=[254, 32, 254],
@@ -157,17 +165,14 @@ class SampleRequest(http.Controller):
         return stream.getvalue()
 
     def get_sales_left(self, order):
-        main = [
+        return [
                 ['Department', order.department],
                 ['Request by', order.user_id.name],
                 ['Created on', order.create_date],
-                ['Samples Must', order.target_date_type + ' by ' + order.target_date],
+                ['Samples Must',  ('%s on %s  %s' % (order.target_date_type, order.target_date, order.ship_early)).strip()],
                 ['Send to', order.send_to],
-                ]
-        recip = [
                 ['Recipient', '\n'.join([t for t in (order.contact_name, order.partner_id.name) if t])],
                 ]
-        return main + recip
 
     def get_sales_right(self, order):
         return [
