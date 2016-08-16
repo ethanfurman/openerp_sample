@@ -23,7 +23,7 @@
             @res_model: sample.request
             @default eval='False'
             @sequence eval='1'
-            @description: Sample request submitted.
+            @description: Sample request created.
 
         ~record model='mail.message.subtype' #mt_sample_request_new
             @name: Request Submitted
