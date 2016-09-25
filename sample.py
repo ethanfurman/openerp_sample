@@ -5,15 +5,15 @@ from openerp.osv import fields, osv
 from openerp.osv.osv import except_osv as ERPError
 import logging
 
+from fnx import Date
+
 # often useful
 from openerp import SUPERUSER_ID
 
 # occasionally useful
-import base64
-import time
-from openerp.tools import DEFAULT_SERVER_DATE_FORMAT, DEFAULT_SERVER_DATETIME_FORMAT, ormcache
+from openerp.tools import DEFAULT_SERVER_DATE_FORMAT
 
-from dbf import Date, DateTime
+from dbf import DateTime
 from fnx.finance import FederalHoliday
 from fnx.oe import Proposed
 from fnx.utils import contains_any
@@ -264,15 +264,15 @@ class sample_request(osv.Model):
             # stuff the rep's address into the record
             user = self.pool.get('res.users').browse(cr, uid, user_id, context=context)
             rep = user.partner_id
-            label = rep.name + '\n' + res_partner._display_address(cr, uid, rep)
+            label = rep.name + '\n' + res_partner._display_address(cr, uid, rep, context=context)
         elif send_to:
             label = False
             if contact_id:
                 contact = res_partner.browse(cr, uid, contact_id, context=context)
-                label = contact.name + '\n' + res_partner._display_address(cr, uid, contact)
+                label = contact.name + '\n' + res_partner._display_address(cr, uid, contact, context=context)
             elif partner_id:
                 partner = res_partner.browse(cr, uid, partner_id, context=context)
-                label = partner.name + '\n' + res_partner._display_address(cr, uid, partner)
+                label = partner.name + '\n' + res_partner._display_address(cr, uid, partner, context=context)
         else:
             label = False
         return label
@@ -281,7 +281,7 @@ class sample_request(osv.Model):
         res = {'value': {}, 'domain': {}}
         if contact_id:
             res_partner = self.pool.get('res.partner')
-            contact = res_partner.browse(cr, uid, contact_id)
+            contact = res_partner.browse(cr, uid, contact_id, context=context)
             if contact.is_company:
                 # move into the partner_id field
                 res['value']['partner_id'] = contact_id
@@ -306,9 +306,9 @@ class sample_request(osv.Model):
             res['domain']['contact_id'] = []
         else:
             res_partner = self.pool.get('res.partner')
-            partner = res_partner.browse(cr, uid, partner_id)
+            partner = res_partner.browse(cr, uid, partner_id, context=context)
             if contact_id:
-                contact = res_partner.browse(cr, uid, contact_id)
+                contact = res_partner.browse(cr, uid, contact_id, context=context)
             # if is_company: set contact domain
             # elif has parent_id: make this the contact & set contact domain
             # else: blank contact, clear domain
@@ -336,11 +336,11 @@ class sample_request(osv.Model):
         domain = ''
         if partner_type:
             # find matching domain
-            partner_type = sample_partner_type.read(cr, SUPERUSER_ID, [('id','=',partner_type)], fields=['partner_domain'])[0]
+            partner_type = sample_partner_type.read(cr, SUPERUSER_ID, [('id','=',partner_type)], fields=['partner_domain'], context=context)[0]
             domain = partner_type['partner_domain']
         else:
             # find default domain -- if none, use a default of all company customers
-            default = sample_partner_type.read(cr, SUPERUSER_ID, [('default','=',True)], fields=['name','partner_domain'])
+            default = sample_partner_type.read(cr, SUPERUSER_ID, [('default','=',True)], fields=['name','partner_domain'], context=context)
             if default:
                 [default] = default
                 domain = default['partner_domain']
@@ -383,7 +383,7 @@ class sample_request(osv.Model):
         # - request is Draft or Submitted (not Production, Transit, or Received)
         #
         res_users = self.pool.get('res.users')
-        user = res_users.browse(cr, uid, uid, context=None)
+        user = res_users.browse(cr, uid, uid, context=context)
         manager = user.has_group('base.group_sale_manager') or user.has_group('sample.group_sample_manager')
         if isinstance(ids, (int, long)):
             ids = [ids]
@@ -402,7 +402,7 @@ class sample_request(osv.Model):
             user = self.pool.get('res.users').browse(cr, uid, uid, context=context)
             for record in self.browse(cr, SUPERUSER_ID, ids, context=context):
                 vals = values.copy()
-                proposed = Proposed(self, cr, values, record)
+                proposed = Proposed(self, cr, values, record, context=context)
                 if 'state' not in vals:
                     state = 'draft' if proposed.state == 'draft' else 'new'
                     old_state = record.state
