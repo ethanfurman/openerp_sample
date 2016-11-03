@@ -346,7 +346,7 @@ class sample_request(osv.Model):
                 domain = default['partner_domain']
                 res['value']['partner_type'] = default['id']
             else:
-                domain = "[('is_company','=',1),'|',('customer','=',1),('xml_id','!=',False)]"
+                domain = "[('is_company','=',1),('customer','=',1)]"
         if partner_id:
             # ensure current partner meets new domain requirements
             res_partner = self.pool.get('res.partner')
