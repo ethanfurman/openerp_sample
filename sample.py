@@ -248,6 +248,41 @@ class sample_request(osv.Model):
             self.message_subscribe(cr, uid, ids, follower_ids, context=context)
         return self.write(cr, uid, ids, values, context=context)
 
+    def copy(self, cr, uid, id, default=None, context=None):
+        default = (default or {}).copy()
+        for setting, value in (
+                ('state', 'draft'),
+                ('target_date', self._get_target_date(cr, uid, context=context)),
+                ('rush', False),
+                ('rep_time', False),
+                ('submit_datetime', False),
+                ('ship_early', False),
+                ('actual_ship', False),
+                ('actual_ship_date', False),
+                ('tracking', False),
+                ('tracking_url', False),
+                ('shipping_cost', False),
+                ('received_by', False),
+                ('received_datetime', False),
+                ('invoice', False),
+                ('julian_date_code', False),
+                ('production_order', False),
+                ('prep_time', False),
+                ('finish_date', False),
+                ):
+            default[setting] = value
+        original = self.browse(cr, uid, id, context=context)
+        product_ids = []
+        for p in original.product_ids:
+            product_ids.append((
+                0, 0, {
+                'qty_id': p.qty_id.id,
+                'product_id': p.product_id.id,
+                'product_lot_requested': p.product_lot_requested,
+                }))
+        default['product_ids'] = product_ids
+        return super(sample_request, self).copy(cr, uid, id, default, context)
+
     def name_get(self, cr, uid, ids, context=None):
         if isinstance(ids, (int, long)):
             ids = [ids]
