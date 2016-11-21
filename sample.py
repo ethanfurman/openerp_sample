@@ -420,7 +420,7 @@ class sample_request(osv.Model):
                         state = 'transit'
                     if any([proposed.received_by, proposed.received_datetime]):
                         state = 'complete'
-                    if proposed.state == 'draft' and state != 'draft':
+                    if record.state == 'draft' and state not in ('draft', 'new'):
                         # make sure 'submit' happens before other, later, states
                         self.button_sample_submit(cr, uid, ids, context=context)
                     if proposed.state != state:
