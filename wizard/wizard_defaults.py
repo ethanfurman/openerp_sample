@@ -1,4 +1,4 @@
-from collections import defaultdict, OrderedDict
+from collections import defaultdict
 import logging
 import pickle
 
@@ -90,6 +90,8 @@ class wizard_sample_request_defaults(osv.TransientModel):
                 field, subfields = field
             else:
                 subfields = []
+            # XXX: figure out what subfields is for
+            subfields
             value = record[field]
             field_spec = model_fields[field]
             if 'required' in field_spec:

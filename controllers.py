@@ -1,16 +1,14 @@
 # -*- coding: utf-8 -*-
 
 import openerp
-import werkzeug
 from openerp import SUPERUSER_ID
 from openerp.addons.web import http
 from openerp.addons.web.controllers.main import content_disposition
 import logging
 from mimetypes import guess_type
-from reportlab.platypus import PageBreak, Paragraph, SimpleDocTemplate, Spacer, Table, TableStyle
+from reportlab.platypus import Paragraph, SimpleDocTemplate, Spacer, Table, TableStyle
 from reportlab.lib import colors
 from reportlab.lib.styles import getSampleStyleSheet
-from reportlab.rl_config import defaultPageSize
 from StringIO import StringIO
 from antipathy import Path
 from openerp.addons.fnx import Humanize

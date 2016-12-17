@@ -5,7 +5,7 @@ from openerp.osv import fields, osv
 from openerp.osv.osv import except_osv as ERPError
 import logging
 
-from fnx import Date
+from dbf import Date, DateTime
 
 # often useful
 from openerp import SUPERUSER_ID
@@ -13,10 +13,9 @@ from openerp import SUPERUSER_ID
 # occasionally useful
 from openerp.tools import DEFAULT_SERVER_DATE_FORMAT
 
-from dbf import DateTime
-from fnx.finance import FederalHoliday
+from VSS.finance import FederalHoliday
 from fnx.oe import Proposed
-from fnx.utils import contains_any
+from VSS.utils import contains_any
 
 _logger = logging.getLogger(__name__)
 
