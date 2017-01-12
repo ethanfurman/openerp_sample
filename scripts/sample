@@ -189,8 +189,16 @@ def split_label(label):
                 text.append(w)
         if len(text) > 1 and text[-1] == 'ea':
             text.pop()
-        if len(text) and qty != '1' and text[-1] not in ('ea', 'oz') and text[-1][-1] != 's':
-            text[-1] = text[-1] + 's'
+        if text[-1] not in ('ea', 'oz') and text[-1][-1] != 's':
+            if (
+                    (len(text) == 1 and qty != '1')
+                    or (len(text) > 1 and qty and size)
+                ):
+                if text[-1][-1] in ('s', 'x', 'z', 'ch', 'sh'):
+                    text[-1] = text[-1] + 'es'
+                else:
+                    text[-1] = text[-1] + 's'
+
     final = []
     if qty and size:
         final.extend([qty, '-', size])
