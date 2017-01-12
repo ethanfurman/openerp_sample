@@ -2,9 +2,11 @@
 from __future__ import print_function
 
 from aenum import Enum
+from collections import defaultdict
 from dbf import Date
 from openerplib import get_connection, get_records, AttrDict
 from scription import *
+import os
 
 CONFIG = '/etc/openerp/fnx.ini'
 
@@ -95,20 +97,76 @@ def receive(shipper, tracking, date, by):
         OE.sample_request.write(record.id, data)
 
 
-@Command()
-def fix_qty_label():
+@Command(
+        dry_run=('show results, do not update', FLAG),
+        fix_errors=('make reasonable guesses on error input', FLAG),
+        )
+def fix_qty_label(dry_run, fix_errors):
     """
     normalize qty_label field (e.g. 4-2oz. -> 4 - 2 oz)
     """
     connect_oe()
     qty_label = OE.conn.get_model('sample.qty_label')
     records = get_records(qty_label, fields=['id', 'name'])
+    canonical = {}
+    reassignment = {}
+    duplicates = []
     for rec in records:
         if rec.name.replace(' ', '').isalpha():
             # just words, leave as-is
             continue
-        label = split_label(rec.name)
-        echo('%-20s  <- %s' % (label, rec.name))
+        label = split_label(rec.name, not fix_errors)
+        if 'error' in label:
+            print('%-20s  <- %s' % (label, rec.name), file=stderr)
+            continue
+        if dry_run or script_verbosity:
+            echo('%-20s  <- %s' % (label, rec.name))
+        id = canonical.setdefault(label, rec.id)
+        reassignment[rec.id] = id
+        if rec.id != id:
+            duplicates.append(rec.id)
+        if rec.name != label and not dry_run:
+            qty_label.write(rec.id, {'name': label})
+    sample_product = OE.conn.get_model('sample.product')
+    records = get_records(sample_product, fields=['id', 'qty_id'])
+    updates = defaultdict(list)
+    for rec in records:
+        qty_id = reassignment.get(rec.qty_id and rec.qty_id[0] or 0)
+        if qty_id is not None:
+            updates[qty_id].append(rec.id)
+    for qty_id, change_ids in updates.items():
+        if dry_run:
+            echo(qty_id, '->', change_ids)
+        else:
+            sample_product.write(change_ids, {'qty_id': qty_id})
+    if not dry_run:
+        qty_label.unlink(duplicates)
+
+
+@Command(
+        filename=('file to store results in', ),
+        reset=('start with clean file', FLAG),
+        )
+def snapshot(filename, reset):
+    "generate text file of sample products by request id / product id / qty name"
+    if not os.path.exists(filename):
+        reset = True
+    connect_oe()
+    sample_product = OE.conn.get_model('sample.product')
+    records = sorted(get_records(sample_product), key=lambda r: r.id)
+    if not reset:
+        with open(filename) as f:
+            lines = f.read().strip().split('\n')
+    with open(filename, 'w') as f:
+        i = -1
+        for rec in records:
+            i += 1
+            qty = rec.qty_id and rec.qty_id[1] or ''
+            if reset:
+                line = '%5d, %-15s' % (rec.id, qty)
+            else:
+                line = lines[i] + ', %5d, %-15s' % (rec.id, qty)
+            f.write(line + '\n')
 
 
 OE = AttrDict()
@@ -119,7 +177,7 @@ def connect_oe():
     OE.res_users = conn.get_model('res.users')
     OE.sample_request = conn.get_model('sample.request')
 
-def split_label(label):
+def split_label(label, errors=True):
     qty = []
     size = []
     text = []
@@ -148,8 +206,9 @@ def split_label(label):
         if '/' not in qty:
             qty = int(''.join(qty))
             if qty > 1000:
+                if errors:
+                    return 'error: qty'
                 qty = 1
-                # qty = 'error'
     qty = str(qty)
     if not size:
         size = None
@@ -158,14 +217,17 @@ def split_label(label):
         if '/' not in size and '.' not in size:
             size = int(''.join(size))
             if size > 1000:
-                # size = 'error'
+                if errors:
+                    return 'error: size'
                 size = 1
         size = str(size)
     if qty == '1' and size is not None:
         qty, size = size, None
-    if size == '1':
-        size = None
+    # if size == '1':
+    #     size = None
     if not text:
+        if errors:
+            return 'error: text'
         text = ['']
     else:
         words = ''.join(text).lower().split()
@@ -191,7 +253,7 @@ def split_label(label):
             text.pop()
         if text[-1] not in ('ea', 'oz') and text[-1][-1] != 's':
             if (
-                    (len(text) == 1 and qty != '1')
+                    (len(text) == 1 and qty != '1' and size != '1')
                     or (len(text) > 1 and qty and size)
                 ):
                 if text[-1][-1] in ('s', 'x', 'z', 'ch', 'sh'):
