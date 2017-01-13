@@ -1,21 +1,16 @@
 # -*- coding: utf-8 -*-
 
-# always
+# imports
+from dbf import Date, DateTime
+from fnx.oe import Proposed
+from openerp import SUPERUSER_ID
 from openerp.osv import fields, osv
 from openerp.osv.osv import except_osv as ERPError
-import logging
-
-from dbf import Date, DateTime
-
-# often useful
-from openerp import SUPERUSER_ID
-
-# occasionally useful
 from openerp.tools import DEFAULT_SERVER_DATE_FORMAT
-
+from scripts.sample import split_label
 from VSS.finance import FederalHoliday
-from fnx.oe import Proposed
 from VSS.utils import contains_any
+import logging
 
 _logger = logging.getLogger(__name__)
 
@@ -496,6 +491,21 @@ class sample_qty_label(osv.Model):
         'name': fields.char('Qty Label', size=16, required=True),
         'common': fields.boolean('Commonly Used Size'),
         }
+
+    def create(self, cr, uid, values, context=None):
+        "only create unique versions of name, returning existing versions instead"
+        if 'name' not in values:
+            return super(sample_qty_label, self).create(cr, uid, values, context=context)
+        name = split_label(values['name'])
+        if name.startswith('error'):
+            raise ERPError('Error', '%s is invalid' % values['name'])
+        matches = self.read(cr, uid, [('name','=',name)], fields=['id', 'name'], context=context)
+        matches.sort(key=lambda m: m['id'])
+        if matches:
+            return matches[0]['id']
+        else:
+            values['name'] = name
+            return super(sample_qty_label, self).create(cr, uid, values, context=context)
 
 
 class sample_product(osv.Model):
