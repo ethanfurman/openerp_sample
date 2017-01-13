@@ -237,6 +237,8 @@ class sample_request(osv.Model):
         ]
 
     def button_sample_submit(self, cr, uid, ids, context=None):
+        context = (context or {}).copy()
+        context['sample_loop'] = True
         user = self.pool.get('res.users').browse(cr, uid, uid, context=context)
         values = {
                 'state': 'new',
@@ -430,7 +432,9 @@ class sample_request(osv.Model):
             super(sample_request, self).unlink(cr, uid, ids, context=context)
 
     def write(self, cr, uid, ids, values, context=None):
-        if ids:
+        if context is None:
+            context = {}
+        if ids and not context.get('sample_loop'):
             if isinstance(ids, (int, long)):
                 ids = [ids]
             user = self.pool.get('res.users').browse(cr, uid, uid, context=context)
@@ -517,5 +521,3 @@ class sample_product(osv.Model):
                     {'product_lot_used': product['product_lot_requested']},
                     context=context,
                     )
-
-
