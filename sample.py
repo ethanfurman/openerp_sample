@@ -424,7 +424,7 @@ class sample_request(osv.Model):
         if isinstance(ids, (int, long)):
             ids = [ids]
         for request in self.read(cr, uid, ids, fields=['user_id', 'state'], context=context):
-            if request['state'] not in ('draft', 'new'):
+            if not manager and request['state'] not in ('draft', 'new'):
                 raise ERPError('Bad Status', 'can only delete requests that are Draft or Submitted')
             elif not manager and request['user_id'][0] != uid:
                 raise ERPError('Permission Denied', 'You may only delete your own requests')
