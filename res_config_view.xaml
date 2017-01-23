@@ -3,7 +3,7 @@
     ~data
 
         ~record #view_sample_request_config_settings model='ir.ui.view'
-            @name: fis integration settings
+            @name: sample.request.config.settings
             @model: sample.request.config.settings
             @arch type='xml'
                 ~form $Configure_Sample_Default_Followers version='7.0' .oe_form_configuration
