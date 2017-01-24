@@ -5,7 +5,7 @@ from dbf import Date, DateTime
 from fnx.oe import Proposed
 from openerp import SUPERUSER_ID
 from openerp.osv import fields, osv
-from openerp.osv.osv import except_osv as ERPError
+from openerp.exceptions import ERPError
 from openerp.tools import DEFAULT_SERVER_DATE_FORMAT
 from scripts.sample import split_label
 from VSS.finance import FederalHoliday
