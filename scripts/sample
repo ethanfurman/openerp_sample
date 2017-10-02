@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/local/sbin/suid-python --virtualenv
 from __future__ import print_function
 
 from collections import defaultdict
@@ -8,7 +8,7 @@ from sample import split_label
 from scription import *
 import os
 
-CONFIG = '/etc/openerp/fnx.ini'
+CONFIG = '%s/config/fnx.ini' % os.environ['VIRTUAL_ENV']
 
 try:
     settings = OrmFile(CONFIG, section='openerp')
