@@ -403,6 +403,7 @@ class sample_request(osv.Model):
         res = partner_id_res.copy()
         res['value'].update(partner_type_res['value'])
         res['domain'].update(partner_type_res['domain'])
+        del res['value']
         return res
 
     def unlink(self, cr, uid, ids, context=None):
