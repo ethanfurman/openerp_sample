@@ -248,6 +248,7 @@ class sample_request(osv.Model):
         default = (default or {}).copy()
         for setting, value in (
                 ('state', 'draft'),
+                ('user_id', uid),
                 ('target_date', self._get_target_date(cr, uid, context=context)),
                 ('rush', False),
                 ('rep_time', False),
