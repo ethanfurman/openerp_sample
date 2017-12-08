@@ -10,7 +10,6 @@
     'author': 'Van Sebille Systems',
     'depends': [
         'base',
-        'crm',
         'fnx',
         'product',
         'web',
