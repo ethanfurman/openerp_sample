@@ -12,8 +12,11 @@
             @arch type='xml'
                 ~form $Sample_Request version='7.0' setup='onload(send_to, user_id, contact_id, partner_id, context)'
                     ~header
-                        ~button @button_sample_submit $Submit .oe_edit_hide type='object' attrs="{'invisible': ['|',('state','!=', 'draft'),('product_ids','=',[])]}"
-                        @state widget='statusbar'
+                        ~span attrs="{'invisible': ['|',('state','!=', 'draft'),('product_ids','=',[])]}"
+                            ~button @button_sample_submit $Submit .oe_edit_hide .oe_highlight type='object'
+                            or
+                        ~button @button_cancel $Cancel .oe_edit_hide type='object' attrs="{'invisible': [('state','in', ['complete','cancel'])]}"
+                        @state widget='statusbar' statusbar_visible='production,shipping,transit' statusbar_invisible='cancel'
                         ~h2
                             @rush .oe_highlight .oe_text_center .oe_bold attrs="{'invisible': ['|',('rush','=',False),('state','in',['complete','cancelled'])], 'readonly':True}"
                     @id invisible='1'

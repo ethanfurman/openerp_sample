@@ -92,6 +92,8 @@ class sample_request(osv.Model):
         # for target date type of 'shipping', less than three business days is a RUSH
         # for target date type of 'arrive', 1, 2, and 3 day shipping are subtracted from
         # total business days, and less than three is a RUSH
+        #
+        # if job is cancelled, return 'CANCELLED' instead
         res = {}
         if isinstance(ids, (int, long)):
             ids = [ids]
@@ -100,7 +102,9 @@ class sample_request(osv.Model):
                 ['id', 'actual_ship_date', 'create_date', 'request_ship', 'state', 'submit_datetime', 'target_date', 'target_date_type'],
                 context=context,
                 ):
-            if data_rec['actual_ship_date'] or not data_rec['submit_datetime']:
+            if data_rec['state'] == 'cancel':
+                text = 'C A N C E L L E D'
+            elif data_rec['actual_ship_date'] or not data_rec['submit_datetime']:
                 # order has shipped, or not been submitted yet
                 text = False
             elif data_rec['state'] not in ('production', 'shipping'):
@@ -160,6 +164,7 @@ class sample_request(osv.Model):
                 ('shipping', 'Ready to Ship'),  # <- all product_lot's filled in
                 ('transit', 'In Transit'),      # <- tracking number entered
                 ('complete', 'Received'),       # <- received_datetime entered
+                ('cancel', 'Cancelled'),     # <- cancelled
                 ),
             string='Status',
             sort_order='definition',
@@ -175,7 +180,7 @@ class sample_request(osv.Model):
         'rush': fields.function(
             _get_rush,
             type='char',
-            size=10,
+            size=17,
             store={
                 'sample.request': (
                     lambda k, c, u, ids, ctx: ids,
@@ -230,6 +235,11 @@ class sample_request(osv.Model):
         ('product_ids', ['product_id', 'product_lot_requested', 'qty_id']),
         ('message_follower_ids', ['name']),
         ]
+
+    def button_cancel(self, cr, uid, ids, context=None):
+        context = (context or {}).copy()
+        context['sample_loop'] = True
+        return self.write(cr, uid, ids, {'state': 'cancel'}, context=context)
 
     def button_sample_submit(self, cr, uid, ids, context=None):
         context = (context or {}).copy()
