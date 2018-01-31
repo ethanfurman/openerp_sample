@@ -60,6 +60,13 @@
             @sequence eval='41'
             @description: Sample request has been received.
 
+        ~record model='mail.message.subtype' #mt_sample_request_cancelled
+            @name: Request Cancelled
+            @res_model: sample.request
+            @default eval='True'
+            @sequence eval='51'
+            @description: Sample request has been cancelled.
+
 
     ~data noupdate='1'
 

@@ -12,13 +12,14 @@
             @arch type='xml'
                 ~form $Sample_Request version='7.0' setup='onload(send_to, user_id, contact_id, partner_id, context)'
                     ~header
-                        ~span attrs="{'invisible': ['|',('state','!=', 'draft'),('product_ids','=',[])]}"
-                            ~button @button_sample_submit $Submit .oe_edit_hide .oe_highlight type='object'
+                        ~span .oe_view_only attrs="{'invisible': ['|',('state','!=', 'draft'),('product_ids','=',[])]}"
+                            ~button @button_sample_submit $Submit .oe_highlight type='object'
                             or
-                        ~button @button_cancel $Cancel .oe_edit_hide type='object' attrs="{'invisible': [('state','in', ['complete','cancel'])]}"
+                        ~button @button_cancel $Cancel .oe_view_only type='object' attrs="{'invisible': [('state','in', ['transit','complete','cancel'])]}"
                         @state widget='statusbar' statusbar_visible='production,shipping,transit' statusbar_invisible='cancel'
                         ~h2
                             @rush .oe_highlight .oe_text_center .oe_bold attrs="{'invisible': ['|',('rush','=',False),('state','in',['complete','cancelled'])], 'readonly':True}"
+                        ~button @button_uncancel $ReActivate .oe_view_only .oe_right type='object' attrs="{'invisible': [('state','!=','cancel')]}"
                     @id invisible='1'
                     @partner_is_company invisible='1'
                     ~group col='5'
@@ -32,7 +33,7 @@
                                 @target_date_type .oe_inline writeonly="groups('base.group_sale_salesman,sample.group_sample_user')"
                                 on
                                 @target_date .oe_inline writeonly="groups('base.group_sale_salesman,sample.group_sample_user')"
-                                ~span .oe_edit_hide attrs="{'invisible': [('ship_early','=',False)]}": (or earlier)
+                                ~span .oe_view_only attrs="{'invisible': [('ship_early','=',False)]}": (or earlier)
                             @ship_early .oe_edit_only
                             @send_to on_change='onchange_send_to(send_to, user_id, contact_id, partner_id, request_ship, context)' widget='radio' writeonly="groups('base.group_sale_salesman,sample.group_sample_user')"
                             @partner_type $Company_Filter widget='selection' on_change='onchange_partner_type(partner_type, partner_id, context)' options="{'limit':15, 'create':0, 'create_edit':0}"
@@ -103,8 +104,9 @@
                     ~filter $My_Requests @type_owner domain="[('user_id','=',uid)]" help="The samples I requested"
                     ~separator
                     ~filter $Draft_Requests @type_draft domain="[('state','=','draft')]"
-                    ~filter $Active_Requests @type_active domain="[('state','not in',['draft','complete'])]"
+                    ~filter $Active_Requests @type_active domain="[('state','not in',['draft','complete','cancel'])]"
                     ~filter $Complete_Requests @type_complete domain="[('state','=','complete')]"
+                    ~filter $Cancelled_Requests @type_cancel domain="[('state','=','cancel')]"
 
         ~record model=act_window #sample_request_history_action
             @name: Sample Request History

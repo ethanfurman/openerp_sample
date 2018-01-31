@@ -70,6 +70,7 @@ class sample_request(osv.Model):
             'sample.mt_sample_request_ready': lambda s, c, u, r, ctx: r['state'] == 'shipping',
             'sample.mt_sample_request_transiting': lambda s, c, u, r, ctx: r['state'] == 'transit',
             'sample.mt_sample_request_received': lambda s, c, u, r, ctx: r['state'] == 'complete',
+            'sample.mt_sample_request_cancelled': lambda s, c, u, r, ctx: r['state'] == 'cancel',
             }
         }
 
@@ -240,6 +241,10 @@ class sample_request(osv.Model):
         context = (context or {}).copy()
         context['sample_loop'] = True
         return self.write(cr, uid, ids, {'state': 'cancel'}, context=context)
+
+    def button_uncancel(self, cr, uid, ids, context=None):
+        context = (context or {}).copy()
+        return self.write(cr, uid, ids, {}, context=context)
 
     def button_sample_submit(self, cr, uid, ids, context=None):
         context = (context or {}).copy()
