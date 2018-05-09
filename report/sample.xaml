@@ -8,8 +8,10 @@
         ~create-date type='field' @create_date
         ~submit-date type='field' @submit_datetime
         ~special-instructions type='field' @instructions
-        ~customer type='field' @partner_id.name
-        ~contact type='field' @contact_name
+        ~recipient
+            ~contact type='field' @contact_name
+            ~customer type='field' @partner_id.name
+            ~telephone type='field' @phone
         ~dept type='field' @department
         ~address-label type='field' @address
         ~address-type type='field' @address_type
@@ -125,6 +127,10 @@
         ~drawCentredString x='4.25in' y='0.3in'
             ~xsl:value-of select='//corporate-header/corporation/rml_footer'
 
+    ~xsl:template match='recipient'
+        ~para style='nospace' fontSize='9'
+            ~xsl:value-of select='string()'
+
     ~xsl:template match='detail'
         ~blockTable colWidths='218, 32, 290' style='container'
             ~tr
@@ -158,32 +164,11 @@
                                 ~xsl:text: Send to
                             ~td
                                 ~xsl:value-of select='send-to'
-                        ~xsl:if test='normalize-space(contact) and not(normalize-space(customer))'
-                            ~tr style='lines'
-                                ~td
-                                    ~xsl:text: Recipient
-                                ~td
-                                    ~para style='small-font'
-                                        ~xsl:value-of select='contact'
-                        ~xsl:if test='normalize-space(customer) and not(normalize-space(contact))'
-                            ~tr style='lines'
-                                ~td
-                                    ~xsl:text: Recipient
-                                ~td
-                                    ~para style='small-font'
-                                        ~xsl:value-of select='customer'
-                        ~xsl:if test='normalize-space(contact) and normalize-space(customer)'
-                            ~tr style='half-line'
-                                ~td
-                                    ~xsl:text: Recipient
-                                ~td
-                                    ~para style='small-font'
-                                        ~xsl:value-of select='contact'
-                            ~tr style='lines'
-                                ~td
-                                ~td
-                                    ~para style='small-font'
-                                        ~xsl:value-of select='customer'
+                        ~tr style='lines'
+                            ~td
+                                ~xsl:text: Recipient
+                            ~td
+                                ~xsl:apply-templates select='recipient'
                 ~td
                 ~td
                     ~blockTable colWidths='99, 181' style='lines'

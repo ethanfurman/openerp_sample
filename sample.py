@@ -79,6 +79,21 @@ class sample_request(osv.Model):
     #     cr.execute("UPDATE sample_request SET send_to='customer' WHERE send_to='address'")
     #     return super(sample_request, self).__init__(pool, cr)
 
+    def _changed_res_partner_phone_ids(res_partner, cr, uid, changed_ids, context=None):
+        #
+        # changed_ids are all the res.partner records with changed phone
+        # numbers; need to return the sample.request record ids that reference
+        # those res.partner records (kept in partner_id and contact_id)
+        #
+        self = res_partner.pool.get('sample.request')
+        ids = self.search(
+                cr, uid,
+                ['|',('partner_id','in',changed_ids),('contact_id','in',changed_ids)],
+                context=context,
+                )
+        return ids
+
+
     def _get_pdf(self, cr, uid, ids, field_name, arg, context=None):
         res = {}
         if isinstance(ids, (int, long)):
@@ -142,6 +157,21 @@ class sample_request(osv.Model):
         target = FederalHoliday.next_business_day(today, days=3)
         return target.strftime(DEFAULT_SERVER_DATE_FORMAT)
 
+    def _get_telephone_nos(self, cr, uid, ids, field_name, arg, context=None):
+        res = {}
+        if field_name != 'phone':
+            return res
+        # get changed records
+        for rec in self.browse(cr, uid, ids, context=context):
+            id = rec.id
+            if rec.contact_id and rec.contact_id.phone:
+                res[id] = rec.contact_id.phone
+            elif rec.partner_id and rec.partner_id.phone:
+                res[id] = rec.partner_id.phone
+            else:
+                res[id] = False
+        return res
+
     def _get_tracking_url(self, cr, uid, ids, field_name, arg, context=None):
         res = {}
         if isinstance(ids, (int, long)):
@@ -195,6 +225,16 @@ class sample_request(osv.Model):
         'partner_is_company': fields.related('partner_id', 'is_company', type='boolean', string='Partner is Company'),
         'contact_id': fields.many2one('res.partner', 'Contact', track_visibility='onchange'),
         'contact_name': fields.related('contact_id', 'name', type='char', size=64, string='Contact Name'),
+        'phone': fields.function(
+            _get_telephone_nos,
+            type='char',
+            size=32,
+            string='Telephone',
+            store={
+                'sample.request': (lambda k, c, u, ids, ctx: ids, ['partner_id', 'contact_id'], 10),
+                'res.partner': (_changed_res_partner_phone_ids, ['phone'], 20),
+                },
+            ),
         'rep_time': fields.float("Rep's Time"),
         'submit_datetime': fields.datetime('Date Submitted', track_visibility='onchange'),
         # fields needed for shipping
