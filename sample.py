@@ -365,6 +365,16 @@ class sample_request(osv.Model):
             label = False
         return label
 
+    def _get_phone(self, cr, uid, links, context=None):
+        for table, id in links:
+            if not id:
+                continue
+            table = self.pool.get(table)
+            data = table.read(cr, SUPERUSER_ID, id, fields=['phone'], context=context)
+            if data['phone']:
+                return data['phone']
+        return False
+
     def onchange_contact_id(self, cr, uid, ids, send_to, user_id, contact_id, partner_id, context=None):
         res = {'value': {}, 'domain': {}}
         if contact_id:
