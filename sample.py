@@ -385,6 +385,11 @@ class sample_request(osv.Model):
                 res['value']['contact_id'] = False
                 res['domain']['contact_id'] = []
         res['value']['address'] = self._get_address(cr, uid, send_to, user_id, contact_id, partner_id, context=context)
+        res['value']['phone'] = self._get_phone(
+                cr, uid,
+                (('res.partner', contact_id), ('res.partner', partner_id)),
+                context=context,
+                )
         return res
 
     def onchange_partner_id(self, cr, uid, ids, send_to, user_id, contact_id, partner_id, context=None):
@@ -418,6 +423,11 @@ class sample_request(osv.Model):
                 res['domain']['contact_id'] = []
 
         res['value']['address'] = self._get_address(cr, uid, send_to, user_id, contact_id, partner_id, context=context)
+        res['value']['phone'] = self._get_phone(
+                cr, uid,
+                (('res.partner', contact_id), ('res.partner', partner_id)),
+                context=context,
+                )
         return res
 
     def onchange_partner_type(self, cr, uid, ids, partner_type, partner_id, context=None):
