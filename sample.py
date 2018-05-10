@@ -61,6 +61,7 @@ class sample_request(osv.Model):
     _inherit = ['mail.thread']
     _order = 'state, create_date'
     _description = 'Sample Request'
+    _phone_checks = ['contact_id', 'partner_id']
 
     _track = {
         'state' : {
@@ -164,10 +165,10 @@ class sample_request(osv.Model):
         # get changed records
         for rec in self.browse(cr, uid, ids, context=context):
             id = rec.id
-            if rec.contact_id and rec.contact_id.phone:
-                res[id] = rec.contact_id.phone
-            elif rec.partner_id and rec.partner_id.phone:
-                res[id] = rec.partner_id.phone
+            for field in self._phone_checks:
+                if rec[field] and rec[field].phone:
+                    res[id] = rec[field].phone
+                    break
             else:
                 res[id] = False
         return res
