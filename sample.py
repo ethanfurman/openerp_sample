@@ -403,12 +403,14 @@ class sample_request(osv.Model):
             if partner.is_company:
                 # this is a company
                 res['domain']['contact_id'] = [('parent_id','=',partner.id)]
+                res['value']['partner_is_company'] = True
                 if contact_id and contact.parent_id.id != partner.id:
                     res['value']['contact_id'] = False
             elif partner.parent_id:
                 # this is a contact at a company
                 res['value']['contact_id'] = partner_id
                 res['value']['partner_id'] = partner.parent_id.id
+                res['value']['partner_is_company'] = True
                 res['domain']['contact_id'] = [('parent_id','=',partner.parent_id.id)]
             else:
                 # this is a non-company person
