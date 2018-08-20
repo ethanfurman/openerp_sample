@@ -1,7 +1,7 @@
 from antipathy import Path as _Path
 from xaml import Xaml as _Xaml
 
-report_name = (_Path(__file__).path or _Path('.'))/'sample.xaml'
+report_name = (_Path(__file__).dirname or _Path('.'))/'sample.xaml'
 with open(report_name) as src:
     xaml_doc = _Xaml(src.read()).document
 
