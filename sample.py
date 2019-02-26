@@ -62,6 +62,7 @@ class sample_request(osv.Model):
     _order = 'state, create_date'
     _description = 'Sample Request'
     _phone_checks = ['contact_id', 'partner_id']
+    _mail_flat_thread = False
 
     _track = {
         'state' : {

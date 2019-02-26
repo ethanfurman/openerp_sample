@@ -137,74 +137,51 @@
                 ~td
                     ~blockTable colWidths='78, 142' style='lines'
                         ~tr
-                            ~td
-                                ~xsl:text: Department
-                            ~td
-                                ~xsl:value-of select='dept'
+                            ~td: ~xsl:text: Department
+                            ~td: ~xsl:value-of select='dept'
                         ~tr
-                            ~td
-                                ~xsl:text: Request by
-                            ~td
-                                ~xsl:value-of select='request-by'
+                            ~td: ~xsl:text: Request by
+                            ~td: ~xsl:value-of select='request-by'
                         ~tr
-                            ~td
-                                ~xsl:text: Created on
-                            ~td
-                                ~xsl:value-of select='create-date'
+                            ~td: ~xsl:text: Created on
+                            ~td: ~xsl:value-of select='create-date'
                         ~tr
-                            ~td
-                                ~xsl:text: Samples must
+                            ~td: ~xsl:text: Samples must
                             ~td
                                 ~xsl:if test='ship-early'
                                     ~xsl:value-of select="concat(must-arrive, ' on ', arrive-date, ' ', ship-early)"
                                 ~xsl:if test='not(boolean(ship-early))'
                                     ~xsl:value-of select="concat(must-arrive, ' on ', arrive-date)"
                         ~tr
-                            ~td
-                                ~xsl:text: Send to
-                            ~td
-                                ~xsl:value-of select='send-to'
+                            ~td: ~xsl:text: Send to
+                            ~td: ~xsl:value-of select='send-to'
                         ~tr style='lines'
-                            ~td
-                                ~xsl:text: Recipient
-                            ~td
-                                ~xsl:apply-templates select='recipient'
+                            ~td: ~xsl:text: Recipient
+                            ~td: ~xsl:apply-templates select='recipient'
                 ~td
                 ~td
                     ~blockTable colWidths='99, 181' style='lines'
                         ~tr
-                            ~td
-                                ~xsl:text: Ship via
-                            ~td
-                                ~xsl:value-of select='ship-via'
+                            ~td: ~xsl:text: Ship via
+                            ~td: ~xsl:value-of select='ship-via'
                         ~tr
-                            ~td
-                                ~xsl:text: Address type
-                            ~td
-                                ~xsl:value-of select='address-type'
+                            ~td: ~xsl:text: Address type
+                            ~td: ~xsl:value-of select='address-type'
                         ~tr
-                            ~td
-                                ~xsl:text: Shipping label
-                            ~td
-                                ~para style='small-font'
-                                    ~xsl:value-of select='address-label'
+                            ~td: ~xsl:text: Shipping label
+                            ~td: ~para style='small-font' : ~xsl:value-of select='address-label'
                         ~tr
-                            ~td
-                                ~xsl:text: Add Ice
-                            ~td
-                                ~xsl:value-of select='ice'
+                            ~td: ~xsl:text: Add Ice
+                            ~td: ~xsl:value-of select='ice'
                         ~tr
-                            ~td
-                                ~xsl:text: 3rd party account #
-                            ~td
-                                ~xsl:value-of select='shipping-account'
+                            ~td: ~xsl:text: 3rd party account #
+                            ~td: ~xsl:value-of select='shipping-account'
             ~tr
                 ~td
                     ~blockTable colWidths='180, 180, 180' rowHeights='24, 20' style='sample-only'
                         ~tr
                             ~td
-                            ~td
-                                ~xsl:text: Samples Department Only
+                            ~td: ~xsl:text: Samples Department Only
                             ~td
                         ~tr
                             ~td
@@ -219,83 +196,54 @@
         ~spacer length='18'
         ~blockTable colWidths='99, 441' style='free-float'
             ~tr
-                ~td
-                    ~xsl:text: Special Instructions:
-                ~td
-                    ~para style='nospace'
-                        ~xsl:value-of select='special-instructions'
+                ~td: ~xsl:text: Special Instructions:
+                ~td: ~para style='nospace' : ~xsl:value-of select='special-instructions'
         ~spacer length='18'
         ~blockTable colWidths='99, 45, 252, 72, 72' style='item-table'
             ~tr
+                ~td: ~xsl:text: Qty
+                ~td: ~para style='small-font' : ~xsl:text: Item
                 ~td
-                    ~xsl:text: Qty
-                ~td
-                    ~para style='small-font'
-                        ~xsl:text: Item
-                ~td
-                ~td
-                    ~xsl:text: Lot # Requested
-                ~td
-                    ~xsl:text: /     Used
+                ~td: ~xsl:text: Lot # Requested
+                ~td: ~xsl:text: /     Used
             ~xsl:for-each select='item'
                 ~tr
-                    ~td
-                        ~xsl:value-of select='qty'
-                    ~td
-                        ~xsl:value-of select='code'
-                    ~td
-                        ~xsl:value-of select='name'
-                    ~td
-                        ~xsl:value-of select='lot-requested'
-                    ~td
-                        ~xsl:value-of select='lot-used'
+                    ~td: ~xsl:value-of select='qty'
+                    ~td: ~xsl:value-of select='code'
+                    ~td: ~xsl:value-of select='name'
+                    ~td: ~xsl:value-of select='lot-requested'
+                    ~td: ~xsl:value-of select='lot-used'
         ~spacer height='9'
         ~blockTable colWidths='125, 145, 16, 125, 145' style='free-float'
             ~tr
+                ~td: ~xsl:text: Preparation Time:
+                ~td: ~xsl:value-of select='prep-time'
                 ~td
-                    ~xsl:text: Preparation Time:
-                ~td
-                    ~xsl:value-of select='prep-time'
-                ~td
-                ~td
-                    ~xsl:text: Finished on:
-                ~td
-                    ~xsl:value-of select='finish_date'
+                ~td: ~xsl:text: Finished on:
+                ~td: ~xsl:value-of select='finish_date'
         ~flexSpacer height='18' voidHeight='1.75in'
         ~blockTable colWidths='254, 32, 254' style='container'
             ~tr
                 ~td
                     ~blockTable colWidths='108, 144' rowHeights='30' style='lines'
                         ~tr
-                            ~td
-                                ~xsl:text: Shipping Method:
-                            ~td
-                                ~xsl:value-of select='actual-ship-type'
+                            ~td: ~xsl:text: Shipping Method:
+                            ~td: ~xsl:value-of select='actual-ship-type'
                         ~tr
-                            ~td
-                                ~xsl:text: Shipping Cost:
-                            ~td
-                                ~xsl:value-of select='actual-ship-cost'
+                            ~td: ~xsl:text: Shipping Cost:
+                            ~td: ~xsl:value-of select='actual-ship-cost'
                         ~tr
-                            ~td
-                                ~xsl:text: Shipped on:
-                            ~td
-                                ~xsl:value-of select='actual-ship-date'
+                            ~td: ~xsl:text: Shipped on:
+                            ~td: ~xsl:value-of select='actual-ship-date'
                         ~tr
-                            ~td
-                                ~xsl:text: Tracking #:
-                            ~td
-                                ~xsl:value-of select='shipment-tracking'
+                            ~td: ~xsl:text: Tracking #:
+                            ~td: ~xsl:value-of select='shipment-tracking'
                 ~td
                 ~td
                     ~blockTable colWidths='108, 144' rowHeights='60' style='lines'
                         ~tr
-                            ~td
-                                ~xsl:text: Received by:
-                            ~td
-                                ~xsl:value-of select='received-by'
+                            ~td: ~xsl:text: Received by:
+                            ~td: ~xsl:value-of select='received-by'
                         ~tr
-                            ~td
-                                ~xsl:text: Received on:
-                            ~td
-                                ~xsl:value-of select='received-date'
+                            ~td: ~xsl:text: Received on:
+                            ~td: ~xsl:value-of select='received-date'

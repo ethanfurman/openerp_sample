@@ -10,7 +10,7 @@
             @name: sample.request.form
             @model: sample.request
             @arch type='xml'
-                ~form $Sample_Request version='7.0' setup='onload(send_to, user_id, contact_id, partner_id, context)'
+                ~form $Sample_Request version='7.0' edit="[('state','not in',['complete','cancel'])]" setup='onload(send_to, user_id, contact_id, partner_id, context)'
                     ~header
                         ~span .oe_view_only attrs="{'invisible': ['|',('state','!=', 'draft'),('product_ids','=',[])]}"
                             ~button @button_sample_submit $Submit .oe_highlight type='object'
