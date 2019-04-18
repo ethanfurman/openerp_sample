@@ -4,36 +4,36 @@
 
         ~record model='ir.module.category' #module_sample
             @name: Sample
-            @description: Create and track samples
+            @description: Create and track Sample Requests
 
         ~record model='res.groups' #group_sample_guest
             @name: Guest
             @category_id ref='module_sample'
-            @comment: User can view Sample Department data
+            @comment: The user has acess to embedded Sample Request views.
 
         ~record model='res.groups' #group_sample_user
             @name: User
             @category_id ref='module_sample'
-            @comment: User can enter Sample Department data
+            @comment: User can create/modify Sample Requests.
 
         ~record model='res.groups' #group_sample_shipping
             @name: Shipping
             @category_id ref='module_sample'
-            @comment: User can update sample shipping data
+            @comment: User can update Sample Request shipping data.
 
         ~record model='res.groups' #group_sample_picking
             @name: Picking
             @category_id ref='module_sample'
-            @comment: User can update sample lot data and finish date
+            @comment: User can update Sample Request lot data and finish date.
 
         ~record model='res.groups' #group_sample_costing
             @name: Costing
             @category_id ref='module_sample'
-            @comment: User can view costing data
+            @comment: User can view Sample Request costing data.
 
         ~record model='res.groups' #group_sample_manager
             @name: Manager
             @category_id ref='module_sample'
-            @comment: User has full access
+            @comment: User has all access.
             @implied_ids eval="[(6, 0, [ref('group_sample_user'), ref('group_sample_shipping'), ref('group_sample_costing')])]"
             @users eval="[(4, ref('base.user_root'))]"
