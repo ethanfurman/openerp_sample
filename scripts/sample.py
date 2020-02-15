@@ -44,10 +44,6 @@ def split_label(label, errors=True):
                     return 'error: size'
                 size = 1
         size = str(size)
-    if qty == '1' and size is not None:
-        qty, size = size, None
-    # if size == '1':
-    #     size = None
     if not text:
         if errors:
             return 'error: text'
