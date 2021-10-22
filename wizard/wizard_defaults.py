@@ -79,7 +79,10 @@ class wizard_sample_request_defaults(osv.TransientModel):
         return res
 
     def _get_fields_and_defaults(self, cr, uid, allfields=None, context=None, write_access=True):
-        active_id, active_ids, active_model = [context[k] for k in ['active_id', 'active_ids', 'active_model']]
+        active_id, active_ids, active_model = [context.get(k) for k in ['active_id', 'active_ids', 'active_model']]
+        if active_id is None and active_model is None and active_ids is None:
+            # dummy call, dummy results
+            return {}, {}
         model = self.pool.get(active_model)
         model_fields = model.fields_get(cr, uid, allfields, context, write_access)
         populated_fields = {}
