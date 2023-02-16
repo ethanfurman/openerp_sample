@@ -207,6 +207,7 @@ class sample_request(osv.Model):
                 ('marketing', 'SAMMA - Marketing'), 
                 ('sales', 'SAMSA - Sales'),
                 ('shows','EXPO - Trade Shows'),
+                ('donation', 'DONAT - Donations'),
                 ],
                 string='Department',
                 required=True,
