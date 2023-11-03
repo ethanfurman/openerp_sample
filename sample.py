@@ -43,6 +43,7 @@ REQUEST_SHIPPING = (
         ('cheap_2', 'Cheapest 2-Day'),
         ('cheap_3', 'Cheapest 3-Day'),
         ('cheap_ground', 'Cheapest Ground'),
+        ('department', 'Interoffice'),
         ) + COMMON_SHIPPING + (
         ('international', 'International (give to receptionist)'),
         )
@@ -208,16 +209,25 @@ class sample_request(osv.Model):
                 ('sales', 'SAMSA - Sales'),
                 ('shows','EXPO - Trade Shows'),
                 ('donation', 'DONAT - Donations'),
+                ('falcon', 'FALCO - Internal'),
                 ],
                 string='Department',
                 required=True,
                 track_visibility='onchange',
                 ),
         'user_id': fields.many2one('res.users', 'Request by', required=True, track_visibility='onchange'),
-        'for_user_id': fields.many2one('res.users', 'Request for', track_visibility='onchange'),
+        'for_user_id': fields.many2one(
+            'res.users',
+            'Request for',
+            domain=[('groups_id','in',[
+                    fields.ref('sample.group_sample_guest'),
+                    fields.ref('base.group_user'),
+                    ])],
+            track_visibility='onchange',
+            ),
         'partner_type': fields.many2one('sample.partner_type', 'Filter', track_visibility='onchange'),
         'create_date': fields.datetime('Request created on', readonly=True, track_visibility='onchange'),
-        'send_to': fields.selection([('rep', 'Sales Rep'), ('customer', 'Customer')], string='Send to', required=True, track_visibility='onchange'),
+        'send_to': fields.selection([('rep', 'Sales Rep'), ('customer', 'Customer'), ('requester', 'Requester')], string='Send to', required=True, track_visibility='onchange'),
         'target_date_type': fields.selection([('ship', 'Ship'), ('arrive', 'Arrive')], string='Samples must', required=True, track_visibility='onchange'),
         'target_date': fields.date('Target Date', required=True, track_visibility='onchange'),
         'rush': fields.function(
@@ -251,7 +261,13 @@ class sample_request(osv.Model):
         'submit_datetime': fields.datetime('Date Submitted', track_visibility='onchange'),
         # fields needed for shipping
         'address': fields.text(string='Shipping Label'),
-        'address_type': fields.selection([('business', 'Commercial'), ('personal', 'Residential')], string='Address type', required=True, track_visibility='onchange'),
+        'address_type': fields.selection([
+                ('business', 'Commercial'),
+                ('personal', 'Residential'),
+                ('department', 'Department'),
+                ],
+            string='Address type', required=True, track_visibility='onchange',
+            ),
         'ice': fields.boolean('Add ice', track_visibility='onchange'),
         'request_ship': fields.selection(REQUEST_SHIPPING, string='Ship Via', required=True, track_visibility='onchange'),
         'ship_early': fields.boolean('Okay to ship early', choice=('', '(or earlier)')),
