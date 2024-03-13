@@ -25,10 +25,10 @@ else:
     PW = settings.pw
 
 @Script(
-        host=Spec('host where OpenERP instance is running', OPTION, default=HOST),
-        db=Spec('database to use', OPTION, default=DB),
-        user=Spec('login name to use', OPTION, default=USER),
-        pw=Spec('password for login name', OPTION),
+        host=Spec('host where OpenERP instance is running', OPTION, None, default=HOST),
+        db=Spec('database to use', OPTION, None, default=DB),
+        user=Spec('login name to use', OPTION, None, default=USER),
+        pw=Spec('password for login name', OPTION, None),
         )
 def main(host, db, user, pw):
     if host:

@@ -15,6 +15,8 @@ import logging
 _logger = logging.getLogger(__name__)
 
 COMMON_SHIPPING = (
+        ('usps_flat_rate', 'USPS Flat Rate'),
+        ('fedex_one_rate', 'FedEx One Rate'),
         ('fedex_first', 'FedEx First Overnight(early AM'),
         ('fedex_next', 'FedEx Next Overnight (late AM)'),
         ('fedex_overnight', 'FedEx Standard Overnight (early PM)'),
