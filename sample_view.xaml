@@ -6,6 +6,8 @@
 ~openerp
     ~data noupdate='0'
 
+        // Requests
+
         ~record model=view #sample_request_form
             @name: sample.request.form
             @model: sample.request
@@ -126,6 +128,28 @@
 
         ~menuitem @Samples #menu_sales_sample parent='base.menu_sales' action='sample_request_action'
 
+        // Shipping Options
+
+        ~record model=view #sample_shipping_tree
+            @name: sample.shipping.tree
+            @model: sample.shipping
+            @arch type='xml'
+                ~tree $Sample_Shipping editable='bottom'
+                    @name
+                    @code
+                    @active
+
+        ~record model=act_window #sample_shipping_action
+            @name: Shipping Options
+            @res_model: sample.shipping
+            @view_type: form
+            @view_mode: tree
+            @view_id ref='sample_shipping_tree'
+
+        ~menuitem @Shipping parent='menu_sample_config' #menu_sample_config_shipping action='sample_shipping_action'
+
+        // Partner Types
+
         ~record model=view #sample_partner_type_form
             @name: sample.partner_type.form
             @model: sample.partner_type
@@ -145,6 +169,8 @@
 
         ~menuitem @Samples sequence='99' parent='base.menu_base_config' groups='base.group_sale_manager' #menu_sample_config
         ~menuitem @Partner_Segmentation parent='menu_sample_config' #menu_sample_config_partner_segmentation action='sample_partner_type_action'
+
+        // Products
 
         ~record model=view #sample_product_list_full
             @name: sample.product.list
@@ -177,5 +203,6 @@
         ~menuitem @Products sequence='30' parent='sample_sub' action='product.product_normal_action' #menu_sample_product
         ~menuitem @Configuration sequence='40' parent='sample_main' #sample_sub_config
         ~menuitem @Partner #menu_sample_partner_type_config parent='sample_sub_config' action='sample_partner_type_action'
+        ~menuitem @Shipping #menu_sample_shipping_config parent='sample_sub_config' action='sample_shipping_action'
 
         ~report model='sample.request' name='sample.request.report' header='True' auto='True' multi='False' xml='sample/report/sample.xml' xsl='sample/report/sample.xsl' $Sample_Request #report_sample_request_form

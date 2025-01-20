@@ -2,7 +2,7 @@
 
 # imports
 from dbf import Date, DateTime
-from fnx.oe import Proposed
+from fnx.oe import Proposed, MergeSelected
 from openerp import SUPERUSER_ID
 from openerp.osv import fields, osv
 from openerp.exceptions import ERPError
@@ -154,6 +154,13 @@ class sample_request(osv.Model):
             res[data_rec['id']] = text
         return res
 
+    def _get_shippers(self, cr, uid, context=None):
+        obj = self.pool.get('sample.shipping')
+        ids = obj.search(cr, SUPERUSER_ID, [])
+        res = obj.read(cr, SUPERUSER_ID, ids, ['code', 'name'], context=context)
+        res = [(r['code'].lower(), r['name']) for r in res]
+        return res
+
     def _get_target_date(self, cr, uid, context=None):
         # get the next third business day
         today = Date.strptime(
@@ -271,7 +278,12 @@ class sample_request(osv.Model):
             string='Address type', required=True, track_visibility='onchange',
             ),
         'ice': fields.boolean('Add ice', track_visibility='onchange'),
-        'request_ship': fields.selection(REQUEST_SHIPPING, string='Ship Via', required=True, track_visibility='onchange'),
+        'request_ship': fields.selection(
+                selection=_get_shippers,
+                string='Ship Via',
+                required=True,
+                track_visibility='onchange',
+                ),
         'ship_early': fields.boolean('Okay to ship early', choice=('', '(or earlier)')),
         'actual_ship': fields.selection(COMMON_SHIPPING, string='Actual Shipping Method', track_visibility='onchange'),
         'actual_ship_date': fields.date('Shipped on', track_visibility='onchange'),
@@ -641,3 +653,24 @@ class sample_product(osv.Model):
                     {'product_lot_used': product['product_lot_requested']},
                     context=context,
                     )
+class sample_shipping(MergeSelected, osv.Model):
+    _name = 'sample.shipping'
+    _order = 'name asc'
+
+    _columns = {
+            'name': fields.char('Shipping Method', size=128, required=True),
+            'code': fields.char('Code', size=32, required=True),
+            'active': fields.boolean('Available Method?'),
+            'sort_order': fields.integer('Sort Order', help='position to display in list'),
+            'days': fields.integer('Days', help='how many days to get there'),
+            'guaranteed_by': fields.char('Guaranteed by', help='Morning?  Evening?  2pm?'),
+            }
+
+    _defaults = {
+            'active': True,
+            }
+
+    _sql_constraints = [
+            ('uniq_sample_shipping_code', 'unique(code)', 'Code already in use'),
+            ]
+

@@ -2,6 +2,7 @@
 
 -sample_qty = 'sample.qty_label'
 -partner_type = 'sample.partner_type'
+-shipper = 'sample.shipping'
 
 ~openerp
     ~data noupdate='0'
@@ -89,3 +90,182 @@
             @default eval='0'
             @partner_domain: [('is_company','=',1),('customer','=',0),('supplier','=',0)]
             @active eval='1'
+
+
+        // initial shippers
+
+        ~record model=shipper #sample_shipper_cheap_1
+            @name: Cheapest 1-Day
+            @code: cheap_1
+            @active eval='1'
+            @days: 1
+
+        ~record model=shipper #sample_shipper_cheap_2
+            @name: Cheapest 2-Day
+            @code: cheap_2
+            @active eval='1'
+            @days: 2
+
+        ~record model=shipper #sample_shipper_cheap_3
+            @name: Cheapest 3-Day
+            @code: cheap_3
+            @active eval='1'
+            @days: 3
+
+        ~record model=shipper #sample_shipper_cheap_ground
+            @name: Cheapest Ground
+            @code: cheap_ground
+            @active eval='1'
+            @days: 0
+
+        ~record model=shipper #sample_shipper_department
+            @name: Department / Interoffice
+            @code: department
+            @active eval='1'
+            @days: 0
+
+        ~record model=shipper #sample_shipper_international
+            @name: International (give to receptionist)
+            @code: international
+            @active eval='1'
+            @days: 0
+
+        ~record model=shipper #sample_shipper_usps_flat_rate
+            @name: USPS Flat Rate
+            @code: usps_flat_rate
+            @active eval='1'
+            @days: 0
+
+        ~record model=shipper #sample_shipper_fedex_one_rate
+            @name: FedEx One Rate
+            @code: fedex_one_rate
+            @active eval='1'
+            @days: 0
+
+        ~record model=shipper #sample_shipper_fedex_first
+            @name: FedEx First Overnight (early AM)
+            @code: fedex_first
+            @active eval='1'
+            @days: 1
+
+        ~record model=shipper #sample_shipper_fedex_next
+            @name: FedEx Next Overnight (late AM)
+            @code: fedex_next
+            @active eval='1'
+            @days: 1
+
+        ~record model=shipper #sample_shipper_fedex_overnight
+            @name: FedEx Standard Overnight (early PM)
+            @code: fedex_overnight
+            @active eval='1'
+            @days: 1
+
+        ~record model=shipper #sample_shipper_fedex_2_am
+            @name: FedEx 2-Day AM
+            @code: fedex_2_am
+            @active eval='1'
+            @days: 2
+
+        ~record model=shipper #sample_shipper_fedex_2_pm
+            @name: FedEx 2-Day PM
+            @code: fedex_2_pm
+            @active eval='1'
+            @days: 2
+
+        ~record model=shipper #sample_shipper_fedex_3
+            @name: FedEx 3-Day (Express Saver)
+            @code: fedex_3
+            @active eval='1'
+            @days: 3
+
+        ~record model=shipper #sample_shipper_fedex_ground
+            @name: FedEx Ground
+            @code: fedex_ground
+            @active eval='1'
+            @days: 0
+
+        ~record model=shipper #sample_shipper_ups_first
+            @name: UPS First Overnight
+            @code: ups_first
+            @active eval='1'
+            @days: 1
+
+        ~record model=shipper #sample_shipper_ups_next
+            @name: UPS Next Overnight (late AM)
+            @code: ups_next
+            @active eval='1'
+            @days: 1
+
+        ~record model=shipper #sample_shipper_ups_overnight
+            @name: UPS Overnight (late PM)
+            @code: ups_overnight
+            @active eval='1'
+            @days: 1
+
+        ~record model=shipper #sample_shipper_ups_2
+            @name: UPS 2-Day
+            @code: ups_2
+            @active eval='1'
+            @days: 2
+
+        ~record model=shipper #sample_shipper_ups_3
+            @name: UPS 3-Day
+            @code: ups_3
+            @active eval='1'
+            @days: 3
+
+        ~record model=shipper #sample_shipper_ups_ground
+            @name: UPS Ground
+            @code: ups_ground
+            @active eval='1'
+            @days: 0
+
+        ~record model=shipper #sample_shipper_ontrac_first
+            @name: ONTRAC First Overnight
+            @code: ontrac_first
+            @active eval='1'
+            @days: 1
+
+        ~record model=shipper #sample_shipper_ontrac_next
+            @name: ONTRAC Next Overnight (early AM)
+            @code: ontrac_next
+            @active eval='1'
+            @days: 1
+
+        ~record model=shipper #sample_shipper_ontrac_overnight
+            @name: ONTRAC Overnight (late PM)
+            @code: ontrac_overnight
+            @active eval='1'
+            @days: 1
+
+        ~record model=shipper #sample_shipper_ontrac_2
+            @name: ONTRACK 2-Day
+            @code: ontrac_2
+            @active eval='1'
+            @days: 2
+
+        ~record model=shipper #sample_shipper_dhl
+            @name: DHL (give to receptionist)
+            @code: dhl
+            @active eval='1'
+            @days: 0
+
+        ~record model=shipper #sample_shipper_rep
+            @name: Deliver to Sales Rep
+            @code: rep
+            @active eval='1'
+            @days: 0
+
+        ~record model=shipper #sample_shipper_invoice
+            @name: Ship with Invoice
+            @code: invoice
+            @active eval='1'
+            @days: 0
+
+        ~record model=shipper #sample_shipper_northbay
+            @name: Falcon North Bay Truck
+            @code: northbay
+            @active eval='1'
+            @days: 0
+
+
